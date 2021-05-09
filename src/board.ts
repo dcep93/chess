@@ -20,14 +20,16 @@ class Board {
   };
 
   constructor() {
-    const position = decodeURIComponent(location.hash.substr(1).split(" ")[0]);
+    const [orientation, position] = (
+      decodeURIComponent(location.hash.substr(1)) || "white/"
+    ).split("//");
     this.chess = new Chess(position);
     this.board = Chessboard("board", {
       position: position || "start",
       draggable: true,
       onDrop: Board.onDrop,
       onChange: Board.onChange,
-      orientation: "white",
+      orientation,
       pieceTheme:
         "./vendor/chessboardjs.com/chessboardjs-1.0.0/img/chesspieces/wikipedia/{piece}.png",
     });
@@ -47,7 +49,7 @@ class Board {
 
   static onChange(old_position: Position, new_position: Position) {
     const fen = board.chess.fen().split(" ")[0];
-    location.hash = board.chess.fen();
+    location.hash = `${board.board.orientation()}//${board.chess.fen()}`;
     if (Chessboard.objToFen(new_position) !== fen) board.rerender();
   }
 
