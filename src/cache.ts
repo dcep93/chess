@@ -8,23 +8,40 @@ type LRUCache = {
       after: string | undefined;
     };
   };
-  first: string;
   last: string;
 };
 
-class cache {
-  static _version: string = "0.0.0";
-  static _size: number = 1000;
-  static _cache: LRUCache;
+class Cache_ {
+  _version: string = "0.0.0";
+  _size: number = 1000;
+  _cache: LRUCache;
 
-  static save() {
+  constructor() {
+    const stored = localStorage.getItem(this._version);
+    if (!stored) {
+      const DUMMY = "_";
+      this._cache = {
+        cache: {},
+        order: {
+          [DUMMY]: {
+            key: DUMMY,
+            count: 0,
+            before: undefined,
+            after: undefined,
+          },
+        },
+        last: DUMMY,
+      };
+      this.save();
+    }
+    this._cache = JSON.parse(stored);
+  }
+
+  save() {
     localStorage.setItem(cache._version, JSON.stringify(cache._cache));
   }
 
-  static load<T>(
-    key: string,
-    f: () => Promise<T>
-  ): Promise<{ key: string; rval: T }> {
+  load<T>(key: string, f: () => Promise<T>): Promise<{ key: string; rval: T }> {
     var rval = cache._cache[key];
     if (rval === undefined) {
       return Promise.resolve()
@@ -47,6 +64,7 @@ class cache {
             cache._cache.last = deleting.before;
             cache._cache.order[cache._cache.last]!.after = undefined;
           }
+          cache.save();
           return { key, rval };
         });
     }
@@ -54,30 +72,7 @@ class cache {
     return Promise.resolve().then(() => ({ key, rval }));
   }
 
-  static _init_cache(): LRUCache {
-    const stored = localStorage.getItem(cache._version);
-    if (!stored) {
-      const DUMMY = "_";
-      cache._cache = {
-        cache: {},
-        order: {
-          [DUMMY]: {
-            key: DUMMY,
-            count: 0,
-            before: undefined,
-            after: undefined,
-          },
-        },
-        first: DUMMY,
-        last: DUMMY,
-      };
-      cache.save();
-      return;
-    }
-    cache._cache = JSON.parse(stored);
-  }
-
-  static _sort_order(key: string) {
+  _sort_order(key: string) {
     const current = cache._cache.order[key]!;
     current.count++;
     while (current.before !== undefined) {
@@ -94,10 +89,11 @@ class cache {
       } else {
         cache._cache.last = current.after;
       }
-      cache._cache.order[current.before]!.after = key;
+      if (current.before !== undefined) {
+        cache._cache.order[current.before]!.after = key;
+      }
     }
-    if (current.before === undefined) cache._cache.first = key;
   }
 }
 
-cache._init_cache();
+const cache = new Cache_();

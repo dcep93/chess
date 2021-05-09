@@ -11,23 +11,26 @@ class Board {
     fen(): string;
     moves(): string[];
     turn(): string;
-  } = new Chess();
+  };
   board: {
     flip(): void;
     position(fen: string, useAnimation: boolean);
     orientation(): string;
-  } = Chessboard("board", {
-    position: location.hash.substr(1) || "start",
-    draggable: true,
-    onDrop: Board.onDrop,
-    onChange: Board.onChange,
-    orientation: "white",
-    pieceTheme:
-      "./vendor/chessboardjs.com/chessboardjs-1.0.0/img/chesspieces/wikipedia/{piece}.png",
-  });
+    fen(): string;
+  };
 
-  init() {
-    move_history.record();
+  constructor() {
+    const position = decodeURIComponent(location.hash.substr(1).split(" ")[0]);
+    this.chess = new Chess(position);
+    this.board = Chessboard("board", {
+      position: position || "start",
+      draggable: true,
+      onDrop: Board.onDrop,
+      onChange: Board.onChange,
+      orientation: "white",
+      pieceTheme:
+        "./vendor/chessboardjs.com/chessboardjs-1.0.0/img/chesspieces/wikipedia/{piece}.png",
+    });
   }
 
   static onDrop(from: string, to: string, piece: string) {
@@ -44,7 +47,7 @@ class Board {
 
   static onChange(old_position: Position, new_position: Position) {
     const fen = board.chess.fen().split(" ")[0];
-    location.hash = fen;
+    location.hash = board.chess.fen();
     if (Chessboard.objToFen(new_position) !== fen) board.rerender();
   }
 
@@ -75,23 +78,29 @@ class Board {
     return Promise.resolve()
       .then(board.pick_reply)
       .then(board.apply_reply)
-      .catch(alert);
+      .catch((err) => {
+        alert(err);
+        throw err;
+      });
   }
 
   pick_reply() {
-    return lichess.get_moves(board.chess.fen()).then((moves) => {
-      if (moves.length === 0) {
-        // we have a brand new move
-        return "";
-      }
-      const weights = moves.map((i) => i.black + i.white + i.draws);
-      var choice = Math.random() * weights.reduce((a, b) => a + b, 0);
-      for (let i = 0; i < weights.length; i++) {
-        choice -= weights[i];
-        if (choice <= 0) return moves[i].move;
-      }
-      throw Error("pick_reply");
-    });
+    return cache
+      .load(board.board.fen(), () => lichess.get_moves(board.chess.fen()))
+      .then((loaded) => loaded.rval)
+      .then((moves) => {
+        if (moves.length === 0) {
+          // we have a brand new move
+          return "";
+        }
+        const weights = moves.map((i) => i.black + i.white + i.draws);
+        var choice = Math.random() * weights.reduce((a, b) => a + b, 0);
+        for (let i = 0; i < weights.length; i++) {
+          choice -= weights[i];
+          if (choice <= 0) return moves[i].move;
+        }
+        throw Error("pick_reply");
+      });
   }
 
   apply_reply(move: string) {

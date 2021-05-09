@@ -1,8 +1,9 @@
 class Controls {
   auto_reply = document.getElementById("auto_reply") as HTMLInputElement;
-  init() {
-    document.getElementById("new_game").onclick = controls.new_game;
-    document.getElementById("different_move").onclick = controls.different_move;
+
+  constructor() {
+    document.getElementById("new_game").onclick = this.new_game;
+    document.getElementById("different_move").onclick = this.different_move;
     document.getElementById("undo").onclick = move_history.undo;
     document.getElementById("redo").onclick = move_history.redo;
   }
