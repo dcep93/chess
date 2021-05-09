@@ -1,6 +1,3 @@
-// Show/hide next move preview that looks like lichess
-
-// shuffle button makes a different opponent move
 class Controls {
   auto_reply = document.getElementById("auto_reply") as HTMLInputElement;
   init() {

@@ -1,11 +1,3 @@
-// if I make a brand new move, opponent auto play is disabled and we display "brand new move" somehow as of move 66 we have a brand new game
-
-// if I undo opponent's move, I can move for them
-// can disable auto play for opponent
-
-// if I make a move, opponent makes a weighted random move
-// displays weight, stockfish for all game history (can hide)
-
 const Chessboard = (window as any).Chessboard;
 const Chess = (window as any).Chess;
 
@@ -41,7 +33,6 @@ class Board {
 
     const move = board.chess.move({ from, to, promotion });
 
-    // illegal move
     if (move === null) return "snapback";
 
     move_history.do(board.chess.fen());
