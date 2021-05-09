@@ -90,7 +90,7 @@ class Board {
         choice -= weights[i];
         if (choice <= 0) return moves[i].move;
       }
-      throw Error("no moves found");
+      throw Error("pick_reply");
     });
   }
 
