@@ -1,6 +1,11 @@
 class MoveHistory {
-  index = -1;
-  history: { position: string }[] = [];
+  index;
+  history;
+
+  constructor() {
+    this.reset();
+  }
+
   reset() {
     move_history.index = -1;
     move_history.history = [];
