@@ -4,7 +4,5 @@
 
 // reset button swaps colors and starts a new game
 class buttons {
-  static render() {
-    alert("buttons.render");
-  }
+  static init() {}
 }
