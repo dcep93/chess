@@ -2,7 +2,7 @@ const title = document.title;
 document.title = "Loading...";
 
 Promise.all(
-  ["index.ts", "board.ts", "buttons.ts", "cache.ts"].map((fileName) =>
+  ["index.ts", "board.ts", "controls.ts", "cache.ts"].map((fileName) =>
     fetch(`./src/${fileName}`)
       .then((response) => response.text())
       .then((code) => window.ts.transpile(code))

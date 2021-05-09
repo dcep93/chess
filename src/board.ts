@@ -34,6 +34,12 @@ class board {
     if (move === null) return "snapback";
   }
 
+  static onChange(old_position: Position, new_position: Position) {
+    const fen = board.chess.fen().split(" ")[0];
+    if (Chessboard.objToFen(new_position) !== fen)
+      return setTimeout(() => board.board.position(fen));
+  }
+
   static get_promotion(to: string, piece: string) {
     const promotions = ["q", "n", "r", "b"];
     if (piece.charAt(1) !== "P" || !["1", "8"].includes(to.charAt(1)))
@@ -44,11 +50,5 @@ class board {
         if (confirm(`Promote to ${p}?`)) return p;
       }
     }
-  }
-
-  static onChange(old_position: Position, new_position: Position) {
-    const fen = board.chess.fen().split(" ")[0];
-    if (Chessboard.objToFen(new_position) !== fen)
-      return setTimeout(() => board.board.position(fen));
   }
 }
