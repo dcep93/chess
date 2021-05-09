@@ -13,6 +13,10 @@ type LRUCache = {
 };
 
 class cache {
+  static _version: string = "0.0.0";
+  static _size: number = 1000;
+  static _cache: LRUCache;
+
   static save() {
     localStorage.setItem(cache._version, JSON.stringify(cache._cache));
   }
@@ -49,10 +53,6 @@ class cache {
     cache._sort_order(key);
     return Promise.resolve().then(() => ({ key, rval }));
   }
-
-  static _version: string = "0.0.0";
-  static _size: number = 1000;
-  static _cache: LRUCache;
 
   static _init_cache(): LRUCache {
     const stored = localStorage.getItem(cache._version);
