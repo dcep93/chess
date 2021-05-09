@@ -26,7 +26,9 @@ class Board {
       "./vendor/chessboardjs.com/chessboardjs-1.0.0/img/chesspieces/wikipedia/{piece}.png",
   });
 
-  init() {}
+  init() {
+    move_history.record();
+  }
 
   static onDrop(from: string, to: string, piece: string) {
     const promotion = board.get_promotion(to, piece);
@@ -35,7 +37,7 @@ class Board {
 
     if (move === null) return "snapback";
 
-    move_history.do(board.chess.fen());
+    move_history.record();
 
     board.maybe_reply();
   }
@@ -70,19 +72,33 @@ class Board {
   }
 
   reply() {
-    return Promise.resolve().then(board.pick_reply).then(board.apply_reply);
+    return Promise.resolve()
+      .then(board.pick_reply)
+      .then(board.apply_reply)
+      .catch(alert);
   }
 
   pick_reply() {
     return lichess.get_moves(board.chess.fen()).then((moves) => {
-      return moves[Math.floor(Math.random() * moves.length)].move;
+      if (moves.length === 0) {
+        // we have a brand new move
+        return "";
+      }
+      const weights = moves.map((i) => i.black + i.white + i.draws);
+      var choice = Math.random() * weights.reduce((a, b) => a + b, 0);
+      for (let i = 0; i < weights.length; i++) {
+        choice -= weights[i];
+        if (choice <= 0) return moves[i].move;
+      }
+      throw Error("no moves found");
     });
   }
 
   apply_reply(move: string) {
+    if (!move) return;
     board.chess.move(move);
     board.rerender();
-    move_history.do(board.chess.fen());
+    move_history.record();
   }
 }
 

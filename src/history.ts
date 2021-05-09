@@ -11,7 +11,8 @@ class MoveHistory {
     this.history = [];
   }
 
-  do(position: string) {
+  record() {
+    const position = board.chess.fen();
     move_history.history.splice(++move_history.index);
     move_history.history.push({ position });
 
