@@ -19,7 +19,7 @@ class MoveHistory {
   }
 
   redo() {
-    if (move_history.index >= move_history.history.length) return;
+    if (move_history.index >= move_history.history.length - 1) return;
     const redid = move_history.history[++move_history.index];
     board.chess.load(redid.position);
     board.rerender();
