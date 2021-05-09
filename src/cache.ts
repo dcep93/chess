@@ -13,38 +13,14 @@ type LRUCache = {
 };
 
 class cache {
-  static _version: string = "0.0.0";
-  static _size: number = 1000;
-  static _cache: LRUCache;
-
-  static _init_cache(): LRUCache {
-    const stored = localStorage.getItem(cache._version);
-    if (!stored) {
-      const DUMMY = "_";
-      cache._cache = {
-        cache: {},
-        order: {
-          [DUMMY]: {
-            key: DUMMY,
-            count: 0,
-            before: undefined,
-            after: undefined,
-          },
-        },
-        first: DUMMY,
-        last: DUMMY,
-      };
-      cache.save_cache();
-      return;
-    }
-    cache._cache = JSON.parse(stored);
-  }
-
-  static save_cache() {
+  static save() {
     localStorage.setItem(cache._version, JSON.stringify(cache._cache));
   }
 
-  static load<T>(key: string, f: () => Promise<T>): Promise<T> {
+  static load<T>(
+    key: string,
+    f: () => Promise<T>
+  ): Promise<{ key: string; rval: T }> {
     var rval = cache._cache[key];
     if (rval === undefined) {
       return Promise.resolve()
@@ -67,11 +43,38 @@ class cache {
             cache._cache.last = deleting.before;
             cache._cache.order[cache._cache.last]!.after = undefined;
           }
-          return rval;
+          return { key, rval };
         });
     }
     cache._sort_order(key);
-    return rval;
+    return Promise.resolve().then(() => ({ key, rval }));
+  }
+
+  static _version: string = "0.0.0";
+  static _size: number = 1000;
+  static _cache: LRUCache;
+
+  static _init_cache(): LRUCache {
+    const stored = localStorage.getItem(cache._version);
+    if (!stored) {
+      const DUMMY = "_";
+      cache._cache = {
+        cache: {},
+        order: {
+          [DUMMY]: {
+            key: DUMMY,
+            count: 0,
+            before: undefined,
+            after: undefined,
+          },
+        },
+        first: DUMMY,
+        last: DUMMY,
+      };
+      cache.save();
+      return;
+    }
+    cache._cache = JSON.parse(stored);
   }
 
   static _sort_order(key: string) {
