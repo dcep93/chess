@@ -1,3 +1,3 @@
 function main() {
-  Promise.resolve().then(board.init).then(buttons.init);
+  Promise.resolve().then(board.init).then(controls.init);
 }
