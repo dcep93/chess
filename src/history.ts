@@ -7,8 +7,8 @@ class MoveHistory {
   }
 
   reset() {
-    move_history.index = -1;
-    move_history.history = [];
+    this.index = -1;
+    this.history = [];
   }
 
   do(position: string) {
@@ -18,7 +18,6 @@ class MoveHistory {
     // if I make a brand new move, opponent auto play is disabled and we display "brand new move" somehow as of move 66 we have a brand new game
     // displays weight, stockfish for all game history (can hide)
     // Show/hide next move preview that looks like lichess
-    // current position as url tag - makes refresh easier
   }
 
   undo() {

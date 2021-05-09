@@ -17,7 +17,7 @@ class Board {
     position(fen: string, useAnimation: boolean);
     orientation(): string;
   } = Chessboard("board", {
-    position: "start",
+    position: location.hash.substr(1) || "start",
     draggable: true,
     onDrop: Board.onDrop,
     onChange: Board.onChange,
@@ -42,6 +42,7 @@ class Board {
 
   static onChange(old_position: Position, new_position: Position) {
     const fen = board.chess.fen().split(" ")[0];
+    location.hash = fen;
     if (Chessboard.objToFen(new_position) !== fen) board.rerender();
   }
 
@@ -73,8 +74,9 @@ class Board {
   }
 
   pick_reply() {
-    const moves = board.chess.moves();
-    return moves[Math.floor(Math.random() * moves.length)];
+    return lichess.get_moves(board.chess.fen()).then((moves) => {
+      return moves[Math.floor(Math.random() * moves.length)].move;
+    });
   }
 
   apply_reply(move: string) {
