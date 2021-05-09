@@ -27,7 +27,6 @@ class board {
 
   static onDrop(from: string, to: string, piece: string) {
     const promotion = board.get_promotion(to, piece);
-    console.log(promotion);
 
     const move = board.chess.move({ from, to, promotion });
 
@@ -48,9 +47,8 @@ class board {
   }
 
   static onChange(old_position: Position, new_position: Position) {
-    console.log(Chessboard.objToFen(new_position), board.chess.fen());
-    // if (Chessboard.objToFen(new_position) !== board.chess.fen())
-    //   return board.board.position(board.chess.fen());
-    console.log(new_position);
+    const fen = board.chess.fen().split(" ")[0];
+    if (Chessboard.objToFen(new_position) !== fen)
+      return setTimeout(() => board.board.position(fen));
   }
 }
