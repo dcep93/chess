@@ -29,19 +29,15 @@ class Board {
     this.board = Chessboard("board", {
       position: position.split(" ")[0] || "start",
       draggable: true,
-      onDrop: Board.onDrop,
-      onChange: Board.onChange,
+      onDrop: this.onDrop,
+      onChange: this.onChange,
       orientation,
       pieceTheme:
         "./vendor/chessboardjs.com/chessboardjs-1.0.0/img/chesspieces/wikipedia/{piece}.png",
     });
   }
 
-  static onDrop(
-    from: string,
-    to: string,
-    piece: string
-  ): "snapback" | undefined {
+  onDrop(from: string, to: string, piece: string): "snapback" | undefined {
     const promotion = board.get_promotion(to, piece);
 
     const move = board.chess.move({ from, to, promotion });
@@ -51,7 +47,7 @@ class Board {
     Promise.resolve().then(move_history.record).then(board.maybe_reply);
   }
 
-  static onChange(old_position: Position, new_position: Position) {
+  onChange(old_position: Position, new_position: Position) {
     const fen = board.chess.fen().split(" ")[0];
     location.hash = `${board.board.orientation()}//${board.chess.fen()}`;
     if (Chessboard.objToFen(new_position) !== fen) board.rerender();
