@@ -33,8 +33,9 @@ class CacheW {
         last: DUMMY,
       };
       this.save();
+    } else {
+      this._cache = JSON.parse(stored);
     }
-    this._cache = JSON.parse(stored);
   }
 
   save() {
