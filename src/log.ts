@@ -23,7 +23,6 @@ class Log {
       black: 0,
     };
     if (chosen.total === 0) controls.auto_reply.checked = false;
-    console.log(chosen);
     const pick =
       (100 * chosen.total) /
       choice.moves.map((i) => i.total).reduce((a, b) => a + b, 0);
