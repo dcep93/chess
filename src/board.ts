@@ -85,12 +85,12 @@ class Board {
   maybe_reply() {
     if (!controls.auto_reply.checked) return;
     if (this.chess.turn() === this.board.orientation().charAt(0)) return;
-    return this.reply();
+    return this.reply("");
   }
 
-  async reply(): Promise<void> {
+  async reply(different: string): Promise<void> {
     try {
-      const choice = await this.pick_reply();
+      const choice = await this.pick_reply(different);
       this.apply_reply(choice);
       board.maybe_reply.bind(board);
     } catch (err) {
@@ -99,10 +99,14 @@ class Board {
     }
   }
 
-  async pick_reply(): Promise<{ move: string; moves: Move[] }> {
+  async pick_reply(
+    different: string
+  ): Promise<{ move: string; moves: Move[] }> {
     const moves = await lichess.get_moves();
     // todo weight based on blunders too
-    const weights = moves.map((m) => m.black + m.white + m.draws);
+    const weights = moves.map(
+      (m) => m.black + m.white + m.draws / (m.move === different ? 1 : 10)
+    );
     var choice = Math.random() * weights.reduce((a, b) => a + b, 0);
     for (let i = 0; i < weights.length; i++) {
       choice -= weights[i];

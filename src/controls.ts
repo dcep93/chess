@@ -21,8 +21,10 @@ class Controls {
   }
 
   different_move() {
-    navigate.undo();
-    board.reply();
+    const c_history = board.chess.history();
+    const move = c_history[c_history.length - 1];
+    if (!navigate.undo()) return;
+    board.reply(move);
   }
 }
 

@@ -25,11 +25,12 @@ class Navigate {
     return log.log(fen, choice);
   }
 
-  undo() {
-    if (this.index <= 0) return;
+  undo(): boolean {
+    if (this.index <= 0) return false;
     const undid = this.history[--this.index];
     board.chess.load(undid.fen);
     board.rerender();
+    return true;
   }
 
   redo() {
