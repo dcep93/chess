@@ -16,13 +16,14 @@ class Controls {
     navigate.reset();
     board.board.flip();
     board.chess.reset();
+    navigate.record(null);
     board.rerender();
     board.maybe_reply();
   }
 
   different_move() {
     navigate.undo();
-    board.reply().then(board.maybe_reply);
+    board.reply().then(board.maybe_reply.bind(board));
   }
 }
 

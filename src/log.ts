@@ -18,12 +18,13 @@ class Log {
     const turn = parseInt(fen.split(" ")[5]);
     const chosen = choice.moves.find((i) => i.move === choice.move)?.total || 0;
     if (chosen === 0) controls.auto_reply.checked = false;
-    const total = choice.moves.map((i) => i.total).reduce((a, b) => a + b, 0);
-    const pick = (100 * chosen) / total;
+    const pick =
+      (100 * chosen) /
+      choice.moves.map((i) => i.total).reduce((a, b) => a + b, 0);
     const sf = await this.stockfish(fen);
     const text = `${move} - sf/${sf.toFixed(1)} p/${pick.toFixed(
       1
-    )} t/${total}`;
+    )} t/${chosen}`;
     this._append_cell(player, text, turn);
   }
 
