@@ -26,7 +26,8 @@ class Board {
     const [orientation, position] = (
       location.hash.substr(1).replace(/_/g, " ") || "white//"
     ).split("//");
-    this.chess = new Chess(position);
+    this.chess = new Chess();
+    if (position) this.chess.load(position);
     this.board = Chessboard("board", {
       position: position.split(" ")[0] || "start",
       draggable: true,
@@ -41,7 +42,7 @@ class Board {
   onDrop(from: string, to: string, piece: string): "snapback" | undefined {
     const promotion = this.get_promotion(to, piece);
 
-    const moves_promise = lichess.get_moves();
+    const moves_promise = lichess.get_moves(this.chess.fen());
 
     const v_move = this.chess.move({ from, to, promotion });
 

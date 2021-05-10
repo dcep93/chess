@@ -1,6 +1,6 @@
 class Lichess {
-  async get_moves(): Promise<Move[]> {
-    const fen = board.chess.fen();
+  async get_moves(fen: string = ""): Promise<Move[]> {
+    if (!fen) fen = board.chess.fen();
     return cache_w.load(`lichess:${fen}`, async () => {
       console.log("lichess", fen);
       const response = await fetch(
