@@ -111,7 +111,6 @@ class Board {
     different: string
   ): Promise<{ move: string; moves: Move[] }> {
     const moves = await lichess.get_moves();
-    // todo weight based on blunders too
     const weights = moves.map(
       (m) => m.total / (m.move === different ? 100 : 1)
     );

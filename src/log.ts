@@ -80,12 +80,12 @@ class Log {
   move_to_text(move: Move, moves: Move[]): string {
     const total = moves.map((i) => i.total).reduce((a, b) => a + b, 0);
     const pick = (100 * move.total) / total;
-    const place = moves.filter((m) => m.total > move.total).length;
+    const best = moves.sort((a, b) => b.total - a.total)[0].total;
     return [
-      this.to_chars(move.move, 6),
-      this.to_chars(place.toString(), 2),
-      this.to_chars(`p/${pick.toFixed(1)}`, 6),
+      this.to_chars(move.move, 5),
+      this.to_chars(((100 * move.total) / best).toFixed(1), 4),
       this.to_chars(`t/${move.total}`, 8),
+      this.to_chars(`p/${pick.toFixed(1)}`, 6),
       this.to_chars(
         `ww/${((100 * move.white) / (move.white + move.black)).toFixed(1)}`,
         7
