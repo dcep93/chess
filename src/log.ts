@@ -32,6 +32,11 @@ class Log {
     );
   }
 
+  clear(): void {
+    this.logs.forEach((l) => this.div.removeChild(l));
+    this.logs = [];
+  }
+
   _append_cell(
     player: string,
     text: string,
@@ -44,7 +49,7 @@ class Log {
         .getElementById("log_template")
         .cloneNode(true) as HTMLDivElement;
       row.hidden = false;
-      delete row.id;
+      row.id = "";
       this.div.appendChild(row);
       this.logs.unshift(row);
       this._write_cell("turn", row, `${turn}.`, moves);
@@ -80,10 +85,13 @@ class Log {
   move_to_text(move: Move, moves: Move[]): string {
     const total = moves.map((i) => i.total).reduce((a, b) => a + b, 0);
     const pick = (100 * move.total) / total;
-    const best = moves.sort((a, b) => b.total - a.total)[0].total;
+    const best_non =
+      (100 * move.total) /
+      moves.filter((m) => m !== move).sort((a, b) => b.total - a.total)[0]
+        ?.total;
     return [
       this.to_chars(move.move, 5),
-      this.to_chars(((100 * move.total) / best).toFixed(1), 4),
+      this.to_chars(Math.min(best_non, 420).toFixed(1), 4),
       this.to_chars(`t/${move.total}`, 8),
       this.to_chars(`p/${pick.toFixed(1)}`, 6),
       this.to_chars(

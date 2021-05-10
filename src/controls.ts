@@ -13,6 +13,7 @@ class Controls {
   }
 
   new_game() {
+    log.clear();
     navigate.reset();
     board.board.flip();
     board.chess.reset();
