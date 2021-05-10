@@ -7,25 +7,27 @@ class Board {
   chess: {
     reset(): void;
     load(fen: string): void;
-    move(args): string | null;
+    move(
+      args: string | { from: string; to: string; promotion: string | null }
+    ): string | null;
     fen(): string;
     moves(): string[];
     turn(): string;
   };
   board: {
     flip(): void;
-    position(fen: string, useAnimation: boolean);
+    position(fen: string, useAnimation: boolean): void;
     orientation(): string;
     fen(): string;
   };
 
   constructor() {
     const [orientation, position] = (
-      decodeURIComponent(location.hash.substr(1)) || "white/"
+      decodeURIComponent(location.hash.substr(1)) || "white//"
     ).split("//");
     this.chess = new Chess(position);
     this.board = Chessboard("board", {
-      position: position || "start",
+      position: position.split(" ")[0] || "start",
       draggable: true,
       onDrop: Board.onDrop,
       onChange: Board.onChange,
@@ -35,16 +37,18 @@ class Board {
     });
   }
 
-  static onDrop(from: string, to: string, piece: string) {
+  static onDrop(
+    from: string,
+    to: string,
+    piece: string
+  ): "snapback" | undefined {
     const promotion = board.get_promotion(to, piece);
 
     const move = board.chess.move({ from, to, promotion });
 
     if (move === null) return "snapback";
 
-    move_history.record();
-
-    board.maybe_reply();
+    Promise.resolve().then(move_history.record).then(board.maybe_reply);
   }
 
   static onChange(old_position: Position, new_position: Position) {
@@ -58,7 +62,7 @@ class Board {
     setTimeout(() => board.board.position(fen, true));
   }
 
-  get_promotion(to: string, piece: string) {
+  get_promotion(to: string, piece: string): string | null {
     const promotions = ["q", "n", "r", "b"];
     if (piece.charAt(1) !== "P" || !["1", "8"].includes(to.charAt(1)))
       return null;
@@ -76,7 +80,7 @@ class Board {
     return board.reply();
   }
 
-  reply() {
+  reply(): Promise<void> {
     return Promise.resolve()
       .then(board.pick_reply)
       .then(board.apply_reply)
@@ -86,23 +90,22 @@ class Board {
       });
   }
 
-  pick_reply() {
-    return cache
-      .load(board.board.fen(), () => lichess.get_moves(board.chess.fen()))
-      .then((loaded) => loaded.rval)
-      .then((moves) => {
-        if (moves.length === 0) {
-          // we have a brand new move
-          return "";
-        }
-        const weights = moves.map((i) => i.black + i.white + i.draws);
-        var choice = Math.random() * weights.reduce((a, b) => a + b, 0);
-        for (let i = 0; i < weights.length; i++) {
-          choice -= weights[i];
-          if (choice <= 0) return moves[i].move;
-        }
-        throw Error("pick_reply");
-      });
+  async pick_reply(): Promise<string> {
+    const loaded = await cache.load(board.board.fen(), () =>
+      lichess.get_moves(board.chess.fen())
+    );
+    const moves = loaded.rval;
+    if (moves.length === 0) {
+      // we have a brand new move
+      return "";
+    }
+    const weights = moves.map((i) => i.black + i.white + i.draws);
+    var choice = Math.random() * weights.reduce((a, b) => a + b, 0);
+    for (let i_1 = 0; i_1 < weights.length; i_1++) {
+      choice -= weights[i_1];
+      if (choice <= 0) return moves[i_1].move;
+    }
+    throw Error("pick_reply");
   }
 
   apply_reply(move: string) {

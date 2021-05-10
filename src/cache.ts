@@ -41,7 +41,10 @@ class Cache_ {
     localStorage.setItem(cache._version, JSON.stringify(cache._cache));
   }
 
-  load<T>(key: string, f: () => Promise<T>): Promise<{ key: string; rval: T }> {
+  async load<T>(
+    key: string,
+    f: () => Promise<T>
+  ): Promise<{ key: string; rval: T }> {
     var rval = cache._cache[key];
     if (rval === undefined) {
       return Promise.resolve()
@@ -69,7 +72,8 @@ class Cache_ {
         });
     }
     cache._sort_order(key);
-    return Promise.resolve().then(() => ({ key, rval }));
+    await Promise.resolve();
+    return { key, rval };
   }
 
   _sort_order(key: string) {
