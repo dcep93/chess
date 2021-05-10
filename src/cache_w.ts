@@ -11,7 +11,7 @@ type LRUCache = {
   last: string;
 };
 
-class Cache_ {
+class CacheW {
   _version: string = "0.0.0";
   _size: number = 1000;
   _cache: LRUCache;
@@ -38,48 +38,48 @@ class Cache_ {
   }
 
   save() {
-    localStorage.setItem(cache._version, JSON.stringify(cache._cache));
+    localStorage.setItem(this._version, JSON.stringify(this._cache));
   }
 
   async load<T>(
     key: string,
     f: () => Promise<T>
   ): Promise<{ key: string; rval: T }> {
-    var rval = cache._cache[key];
+    var rval = this._cache[key];
     if (rval === undefined) {
       return Promise.resolve()
         .then(f)
         .then((rval) => {
-          cache._cache[key] = rval;
-          cache._cache.order[key] = {
+          this._cache[key] = rval;
+          this._cache.order[key] = {
             key,
             count: 0,
-            before: cache._cache.last,
+            before: this._cache.last,
             after: undefined,
           };
-          cache._cache.order[cache._cache.last]!.after = key;
-          cache._cache.last = key;
-          cache._sort_order(key);
-          if (Object.keys(cache._cache.order).length > cache._size) {
-            const deleting = cache._cache.order[cache._cache.last]!;
-            delete cache._cache.cache[deleting.key];
-            delete cache._cache.order[deleting.key];
-            cache._cache.last = deleting.before;
-            cache._cache.order[cache._cache.last]!.after = undefined;
+          this._cache.order[this._cache.last]!.after = key;
+          this._cache.last = key;
+          this._sort_order(key);
+          if (Object.keys(this._cache.order).length > this._size) {
+            const deleting = this._cache.order[this._cache.last]!;
+            delete this._cache.cache[deleting.key];
+            delete this._cache.order[deleting.key];
+            this._cache.last = deleting.before;
+            this._cache.order[this._cache.last]!.after = undefined;
           }
-          cache.save();
+          this.save();
           return { key, rval };
         });
     }
-    cache._sort_order(key);
+    this._sort_order(key);
     return { key, rval };
   }
 
   _sort_order(key: string) {
-    const current = cache._cache.order[key]!;
+    const current = this._cache.order[key]!;
     current.count++;
     while (current.before !== undefined) {
-      var before = cache._cache.order[current.before];
+      var before = this._cache.order[current.before];
       if (before.count > current.count) break;
       [current.before, current.after, before.before, before.after] = [
         before.before,
@@ -88,15 +88,15 @@ class Cache_ {
         current.after,
       ];
       if (before.after !== undefined) {
-        cache._cache.order[before.after]!.before = current.after;
+        this._cache.order[before.after]!.before = current.after;
       } else {
-        cache._cache.last = current.after;
+        this._cache.last = current.after;
       }
       if (current.before !== undefined) {
-        cache._cache.order[current.before]!.after = key;
+        this._cache.order[current.before]!.after = key;
       }
     }
   }
 }
 
-const cache = new Cache_();
+const cache_w = new CacheW();

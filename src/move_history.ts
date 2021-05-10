@@ -17,7 +17,7 @@ class MoveHistory {
     move_history.history.push({ position });
 
     // todo
-    // if I make a brand new move,  auto play is disabled and we display of move ...66 we have a brand new game
+    // if I make a brand new move, auto play is disabled and we display of move ...66 we have a brand new game
     // displays weight, stockfish for all game history (can hide)
   }
 

@@ -87,7 +87,7 @@ class Board {
   }
 
   async pick_reply(): Promise<string> {
-    const loaded = await cache.load(board.board.fen(), () =>
+    const loaded = await cache_w.load(board.board.fen(), () =>
       lichess.get_moves(board.chess.fen())
     );
     const moves = loaded.rval;
