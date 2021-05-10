@@ -21,22 +21,23 @@ class Log {
       draws: 0,
       white: 0,
       black: 0,
+      move,
     };
     if (chosen.total === 0) controls.auto_reply.checked = false;
-    const pick =
-      (100 * chosen.total) /
-      choice.moves.map((i) => i.total).reduce((a, b) => a + b, 0);
-
-    const text = `${move} - ww/${(
-      (100 * chosen.white) /
-      (chosen.white + chosen.black)
-    ).toFixed(1)} d/${((100 * chosen.draws) / chosen.total).toFixed(
-      1
-    )} p/${pick.toFixed(1)} t/${chosen.total}`;
-    this._append_cell(player, text, turn);
+    this._append_cell(
+      player,
+      this.move_to_text(chosen, choice.moves),
+      turn,
+      choice.moves
+    );
   }
 
-  _append_cell(player: string, text: string, turn: number): void {
+  _append_cell(
+    player: string,
+    text: string,
+    turn: number,
+    moves: Move[]
+  ): void {
     var row: HTMLDivElement;
     if (player === "b") {
       row = document
@@ -46,18 +47,55 @@ class Log {
       delete row.id;
       this.div.appendChild(row);
       this.logs.unshift(row);
-      this._write_cell("turn", row, `${turn}.`);
+      this._write_cell("turn", row, `${turn}.`, moves);
     } else {
-      if (this.logs.length === 0) this._append_cell("b", "...", turn);
+      if (this.logs.length === 0) this._append_cell("b", "...", turn, moves);
       row = this.logs[0];
     }
-    this._write_cell(player, row, text);
+    this._write_cell(player, row, text, moves);
   }
 
-  _write_cell(className: string, row: HTMLDivElement, text: string): void {
-    // todo make a grid
+  _write_cell(
+    className: string,
+    row: HTMLDivElement,
+    text: string,
+    moves: Move[]
+  ): void {
     // todo color if I blunder
-    row.getElementsByClassName(className)[0].innerHTML = text;
+    const cell = row.getElementsByClassName(className)[0] as HTMLElement;
+    const orientation = board.board.orientation();
+    const fen = board.chess.fen();
+    cell.onclick = () => {
+      board.chess.load(fen);
+      if (orientation !== board.board.orientation()) board.board.flip();
+      board.rerender();
+    };
+    cell.title = moves
+      .sort((a, b) => b.total - a.total)
+      .map((move) => this.move_to_text(move, moves))
+      .join("\n");
+    cell.innerHTML = text;
+  }
+
+  move_to_text(move: Move, moves: Move[]): string {
+    const total = moves.map((i) => i.total).reduce((a, b) => a + b, 0);
+    const pick = (100 * move.total) / total;
+    const place = moves.filter((m) => m.total > move.total).length;
+    return [
+      this.to_chars(move.move, 6),
+      this.to_chars(place.toString(), 2),
+      this.to_chars(`p/${pick.toFixed(1)}`, 6),
+      this.to_chars(`t/${move.total}`, 8),
+      this.to_chars(
+        `ww/${((100 * move.white) / (move.white + move.black)).toFixed(1)}`,
+        7
+      ),
+      this.to_chars(`d/${((100 * move.draws) / move.total).toFixed(1)}`, 7),
+    ].join(" ");
+  }
+
+  to_chars(text: string, num: number): string {
+    return text + " ".repeat(Math.max(num - text.length, 0));
   }
 }
 

@@ -12,6 +12,11 @@
 }
 
 #log_template .move {
-  width: 20em;
+  width: 30em;
   display: inline-block;
+}
+
+.move {
+  font-family: "Courier New", Courier, monospace;
+  white-space: pre;
 }

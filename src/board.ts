@@ -89,6 +89,13 @@ class Board {
     return this.reply("");
   }
 
+  async best(): Promise<void> {
+    const moves = await lichess.get_moves();
+    const move = moves.sort((a, b) => b.total - a.total)[0].move;
+    this.apply_reply({ move, moves });
+    this.maybe_reply();
+  }
+
   async reply(different: string): Promise<void> {
     try {
       const choice = await this.pick_reply(different);

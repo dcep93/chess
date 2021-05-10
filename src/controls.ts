@@ -9,6 +9,7 @@ class Controls {
     document.getElementById("undo").onclick = navigate.undo.bind(navigate);
     document.getElementById("redo").onclick = navigate.redo.bind(navigate);
     document.getElementById("reply").onclick = board.reply.bind(board);
+    document.getElementById("best").onclick = board.best.bind(board);
   }
 
   new_game() {
@@ -18,6 +19,7 @@ class Controls {
     navigate.record(null);
     board.rerender();
     board.maybe_reply();
+    this.auto_reply.checked = true;
   }
 
   different_move() {
