@@ -4,7 +4,6 @@ class Navigate {
 
   constructor() {
     this.reset();
-    console.log(this.index);
   }
 
   reset() {

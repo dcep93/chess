@@ -114,6 +114,7 @@ class Board {
     this.chess.move(choice.move);
     this.rerender();
     navigate.record(choice);
+    this.maybe_reply();
   }
 }
 

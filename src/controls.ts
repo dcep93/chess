@@ -10,6 +10,7 @@ class Controls {
     ).onclick = this.different_move.bind(this);
     document.getElementById("undo").onclick = navigate.undo.bind(navigate);
     document.getElementById("redo").onclick = navigate.redo.bind(navigate);
+    document.getElementById("reply").onclick = board.reply.bind(board);
   }
 
   new_game() {
