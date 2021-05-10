@@ -13,6 +13,7 @@ class Board {
     fen(): string;
     moves(): string[];
     turn(): string;
+    history(): string[];
   };
   board: {
     flip(): void;
@@ -42,9 +43,12 @@ class Board {
 
     const moves_promise = lichess.get_moves();
 
-    const move = this.chess.move({ from, to, promotion });
+    const v_move = this.chess.move({ from, to, promotion });
 
-    if (move === null) return "snapback";
+    if (v_move === null) return "snapback";
+
+    const c_history = this.chess.history();
+    const move = c_history[c_history.length - 1];
 
     moves_promise
       .then((moves) => ({ moves, move }))
