@@ -72,7 +72,6 @@ class Cache_ {
         });
     }
     cache._sort_order(key);
-    await Promise.resolve();
     return { key, rval };
   }
 
