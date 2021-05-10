@@ -23,10 +23,6 @@ class Navigate {
     if (!choice) return;
 
     return log.log(fen, choice);
-
-    // todo
-    // if I make a brand new move, auto play is disabled and we display of move ...66 we have a brand new game
-    // displays weight, stockfish for all game history (can hide)
   }
 
   undo() {

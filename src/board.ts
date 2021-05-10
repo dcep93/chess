@@ -48,8 +48,8 @@ class Board {
 
     moves_promise
       .then((moves) => ({ moves, move }))
-      .then(navigate.record)
-      .then(this.maybe_reply);
+      .then(navigate.record.bind(navigate))
+      .then(this.maybe_reply.bind(this));
   }
 
   onChange(old_position: Position, new_position: Position) {

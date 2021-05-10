@@ -1,5 +1,3 @@
-type Move = { move: string; white: number; black: number; draws: number };
-
 class Lichess {
   async _get_moves(fen: string): Promise<Move[]> {
     console.log("lichess", fen);
