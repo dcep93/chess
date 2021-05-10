@@ -58,6 +58,7 @@ class Board {
   }
 
   onChange(old_position: Position, new_position: Position) {
+    console.log("onChange");
     const fen = this.chess.fen().split(" ")[0];
     location.hash = `${this.board.orientation()}//${this.chess.fen()}`.replace(
       / /g,
@@ -67,6 +68,7 @@ class Board {
   }
 
   rerender() {
+    console.log("rerender");
     const fen = this.chess.fen().split(" ")[0];
     setTimeout(() => this.board.position(fen, true));
   }
@@ -91,6 +93,7 @@ class Board {
 
   async best(): Promise<void> {
     const moves = await lichess.get_moves();
+    if (moves.length === 0) return;
     const move = moves.sort((a, b) => b.total - a.total)[0].move;
     this.apply_reply({ move, moves });
     this.maybe_reply();
