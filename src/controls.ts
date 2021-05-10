@@ -24,7 +24,7 @@ class Controls {
 
   different_move() {
     navigate.undo();
-    board.reply().then(board.maybe_reply.bind(board));
+    board.reply();
   }
 }
 

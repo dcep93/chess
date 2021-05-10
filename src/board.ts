@@ -91,7 +91,8 @@ class Board {
   async reply(): Promise<void> {
     try {
       const choice = await this.pick_reply();
-      return this.apply_reply(choice);
+      this.apply_reply(choice);
+      board.maybe_reply.bind(board);
     } catch (err) {
       alert(err);
       throw err;
@@ -114,7 +115,6 @@ class Board {
     this.chess.move(choice.move);
     this.rerender();
     navigate.record(choice);
-    this.maybe_reply();
   }
 }
 
