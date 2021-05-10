@@ -23,7 +23,7 @@ class Board {
 
   constructor() {
     const [orientation, position] = (
-      decodeURIComponent(location.hash.substr(1)) || "white//"
+      location.hash.substr(1).replace(/_/g, " ") || "white//"
     ).split("//");
     this.chess = new Chess(position);
     this.board = Chessboard("board", {
@@ -54,7 +54,10 @@ class Board {
 
   onChange(old_position: Position, new_position: Position) {
     const fen = this.chess.fen().split(" ")[0];
-    location.hash = `${this.board.orientation()}//${this.chess.fen()}`;
+    location.hash = `${this.board.orientation()}//${this.chess.fen()}`.replace(
+      / /g,
+      "_"
+    );
     if (Chessboard.objToFen(new_position) !== fen) this.rerender();
   }
 
