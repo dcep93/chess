@@ -93,7 +93,7 @@ class Board {
     try {
       const choice = await this.pick_reply(different);
       this.apply_reply(choice);
-      board.maybe_reply.bind(board);
+      this.maybe_reply();
     } catch (err) {
       alert(err);
       throw err;

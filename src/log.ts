@@ -56,6 +56,7 @@ class Log {
 
   _write_cell(className: string, row: HTMLDivElement, text: string): void {
     // todo make a grid
+    // todo color if I blunder
     row.getElementsByClassName(className)[0].innerHTML = text;
   }
 }
