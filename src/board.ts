@@ -113,7 +113,7 @@ class Board {
     const moves = await lichess.get_moves();
     // todo weight based on blunders too
     const weights = moves.map(
-      (m) => m.black + m.white + m.draws / (m.move === different ? 1 : 10)
+      (m) => m.total / (m.move === different ? 100 : 1)
     );
     var choice = Math.random() * weights.reduce((a, b) => a + b, 0);
     for (let i = 0; i < weights.length; i++) {
