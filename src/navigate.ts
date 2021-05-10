@@ -1,4 +1,4 @@
-class MoveHistory {
+class Navigate {
   index: number;
   history: { position: string }[];
 
@@ -13,8 +13,8 @@ class MoveHistory {
 
   record() {
     const position = board.chess.fen();
-    move_history.history.splice(++move_history.index);
-    move_history.history.push({ position });
+    this.history.splice(++this.index);
+    this.history.push({ position });
 
     // todo
     // if I make a brand new move, auto play is disabled and we display of move ...66 we have a brand new game
@@ -22,18 +22,18 @@ class MoveHistory {
   }
 
   undo() {
-    if (move_history.index <= 0) return;
-    const undid = move_history.history[--move_history.index];
+    if (this.index <= 0) return;
+    const undid = this.history[--this.index];
     board.chess.load(undid.position);
     board.rerender();
   }
 
   redo() {
-    if (move_history.index >= move_history.history.length - 1) return;
-    const redid = move_history.history[++move_history.index];
+    if (this.index >= this.history.length - 1) return;
+    const redid = this.history[++this.index];
     board.chess.load(redid.position);
     board.rerender();
   }
 }
 
-const move_history = new MoveHistory();
+const navigate = new Navigate();

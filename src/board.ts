@@ -38,24 +38,24 @@ class Board {
   }
 
   onDrop(from: string, to: string, piece: string): "snapback" | undefined {
-    const promotion = board.get_promotion(to, piece);
+    const promotion = this.get_promotion(to, piece);
 
-    const move = board.chess.move({ from, to, promotion });
+    const move = this.chess.move({ from, to, promotion });
 
     if (move === null) return "snapback";
 
-    Promise.resolve().then(move_history.record).then(board.maybe_reply);
+    Promise.resolve().then(navigate.record).then(this.maybe_reply);
   }
 
   onChange(old_position: Position, new_position: Position) {
-    const fen = board.chess.fen().split(" ")[0];
-    location.hash = `${board.board.orientation()}//${board.chess.fen()}`;
-    if (Chessboard.objToFen(new_position) !== fen) board.rerender();
+    const fen = this.chess.fen().split(" ")[0];
+    location.hash = `${this.board.orientation()}//${this.chess.fen()}`;
+    if (Chessboard.objToFen(new_position) !== fen) this.rerender();
   }
 
   rerender() {
-    const fen = board.chess.fen().split(" ")[0];
-    setTimeout(() => board.board.position(fen, true));
+    const fen = this.chess.fen().split(" ")[0];
+    setTimeout(() => this.board.position(fen, true));
   }
 
   get_promotion(to: string, piece: string): string | null {
@@ -72,23 +72,24 @@ class Board {
 
   maybe_reply() {
     if (!controls.auto_reply.checked) return;
-    if (board.chess.turn() === board.board.orientation().charAt(0)) return;
-    return board.reply();
+    if (this.chess.turn() === this.board.orientation().charAt(0)) return;
+    return this.reply();
   }
 
-  reply(): Promise<void> {
-    return Promise.resolve()
-      .then(board.pick_reply)
-      .then(board.apply_reply)
-      .catch((err) => {
-        alert(err);
-        throw err;
-      });
+  async reply(): Promise<void> {
+    try {
+      await Promise.resolve();
+      const move = await this.pick_reply();
+      return this.apply_reply(move);
+    } catch (err) {
+      alert(err);
+      throw err;
+    }
   }
 
   async pick_reply(): Promise<string> {
-    const loaded = await cache_w.load(board.board.fen(), () =>
-      lichess.get_moves(board.chess.fen())
+    const loaded = await cache_w.load(this.board.fen(), () =>
+      lichess.get_moves(this.chess.fen())
     );
     const moves = loaded.rval;
     if (moves.length === 0) {
@@ -106,9 +107,9 @@ class Board {
 
   apply_reply(move: string) {
     if (!move) return;
-    board.chess.move(move);
-    board.rerender();
-    move_history.record();
+    this.chess.move(move);
+    this.rerender();
+    navigate.record();
   }
 }
 

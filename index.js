@@ -2,11 +2,17 @@ const title = document.title;
 document.title = "Loading...";
 
 Promise.all(
-  ["move_history.ts", "board.ts", "controls.ts", "cache.ts", "lichess.ts"].map(
-    (fileName) =>
-      fetch(`./src/${fileName}`)
-        .then((response) => response.text())
-        .then((code) => window.ts.transpile(code))
+  [
+    "navigate.ts",
+    "board.ts",
+    "controls.ts",
+    "cache.ts",
+    "lichess.ts",
+    "log.ts",
+  ].map((fileName) =>
+    fetch(`./src/${fileName}`)
+      .then((response) => response.text())
+      .then((code) => window.ts.transpile(code))
   )
 )
   .then((codes) => codes.map(eval))

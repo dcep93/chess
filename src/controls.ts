@@ -6,12 +6,12 @@ class Controls {
     // Show/hide next move preview that looks like lichess
     document.getElementById("new_game").onclick = this.new_game;
     document.getElementById("different_move").onclick = this.different_move;
-    document.getElementById("undo").onclick = move_history.undo;
-    document.getElementById("redo").onclick = move_history.redo;
+    document.getElementById("undo").onclick = navigate.undo;
+    document.getElementById("redo").onclick = navigate.redo;
   }
 
   new_game() {
-    move_history.reset();
+    navigate.reset();
     board.board.flip();
     board.chess.reset();
     board.rerender();
@@ -19,7 +19,7 @@ class Controls {
   }
 
   different_move() {
-    move_history.undo();
+    navigate.undo();
     board.reply().then(board.maybe_reply);
   }
 }

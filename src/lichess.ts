@@ -1,11 +1,13 @@
 class Lichess {
-  get_moves(
+  async get_moves(
     fen: string
   ): Promise<{ move: string; white: number; black: number; draws: number }[]> {
     console.log("lichess", fen);
-    return fetch(`https://explorer.lichess.ovh/master?fen=${fen}`)
-      .then((response) => response.json())
-      .then((json) => json.moves.map((m) => ({ move: m.san, ...m })));
+    const response = await fetch(
+      `https://explorer.lichess.ovh/master?fen=${fen}`
+    );
+    const json = await response.json();
+    return json.moves.map((m: any) => ({ move: m.san, ...m }));
   }
 }
 
