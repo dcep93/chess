@@ -12,7 +12,7 @@ type LRUCache = {
 };
 
 class CacheW {
-  _version: string = "0.0.0";
+  _version: string = "0.0.1";
   _size: number = 1000;
   _cache: LRUCache;
 
@@ -41,10 +41,7 @@ class CacheW {
     localStorage.setItem(this._version, JSON.stringify(this._cache));
   }
 
-  async load<T>(
-    key: string,
-    f: () => Promise<T>
-  ): Promise<{ key: string; rval: T }> {
+  async load<T>(key: string, f: () => Promise<T>): Promise<T> {
     var rval = this._cache[key];
     if (rval === undefined) {
       return Promise.resolve()
@@ -68,11 +65,11 @@ class CacheW {
             this._cache.order[this._cache.last]!.after = undefined;
           }
           this.save();
-          return { key, rval };
+          return rval;
         });
     }
     this._sort_order(key);
-    return { key, rval };
+    return rval;
   }
 
   _sort_order(key: string) {

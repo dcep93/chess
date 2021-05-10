@@ -1,20 +1,38 @@
-type Move = { move: string; white: number; black: number; draws: number };
+type Move = {
+  move: string;
+  total: number;
+  white: number;
+  black: number;
+  draws: number;
+};
 
 class Log {
   div = document.getElementById("log");
   logs = [];
-  // todo
-  // if I make a brand new move, auto play is disabled and we display of move ...66 we have a brand new game
-  // displays weight, stockfish for all game history (can hide)
-  log(fen: string, choice: { move: string; moves: Move[] }): void {
+  async log(
+    fen: string,
+    choice: { move: string; moves: Move[] }
+  ): Promise<void> {
     const player = fen.split(" ")[1];
     const move = choice.move;
     const turn = parseInt(fen.split(" ")[5]);
-    this._append_cell(player, move, turn);
-    console.log("log", fen);
+    const chosen = choice.moves.find((i) => i.move === choice.move)?.total || 0;
+    if (chosen === 0) controls.auto_reply.checked = false;
+    const total = choice.moves.map((i) => i.total).reduce((a, b) => a + b, 0);
+    const pick = (100 * chosen) / total;
+    const sf = await this.stockfish(fen);
+    const text = `${move} - sf/${sf.toFixed(1)} p/${pick.toFixed(
+      1
+    )} t/${total}`;
+    this._append_cell(player, text, turn);
   }
 
-  _append_cell(player: string, move: string, turn: number): void {
+  async stockfish(fen: string): Promise<number> {
+    // todo
+    return cache_w.load(`stockfish:${fen}`, async () => 0);
+  }
+
+  _append_cell(player: string, text: string, turn: number): void {
     var row: HTMLDivElement;
     if (player === "b") {
       row = document
@@ -29,11 +47,11 @@ class Log {
       if (this.logs.length === 0) this._append_cell("b", "...", turn);
       row = this.logs[0];
     }
-    this._write_cell(player, row, move);
+    this._write_cell(player, row, text);
   }
 
-  _write_cell(className: string, row: HTMLDivElement, move: string): void {
-    row.getElementsByClassName(className)[0].innerHTML = move;
+  _write_cell(className: string, row: HTMLDivElement, text: string): void {
+    row.getElementsByClassName(className)[0].innerHTML = text;
   }
 }
 
