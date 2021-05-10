@@ -15,6 +15,7 @@ class CacheW {
   _version: string = "0.0.1";
   _size: number = 1000;
   _cache: LRUCache;
+  _logged = false;
 
   constructor() {
     const stored = localStorage.getItem(this._version);
@@ -43,6 +44,17 @@ class CacheW {
   }
 
   async load<T>(key: string, f: () => Promise<T>): Promise<T> {
+    return Promise.resolve()
+      .then(() => this.load_helper(key, f))
+      .catch((err) => {
+        if (!this._logged) document.title = `!${document.title}`;
+        this._logged = true;
+        console.log(err);
+        return f();
+      });
+  }
+
+  async load_helper<T>(key: string, f: () => Promise<T>): Promise<T> {
     var rval = this._cache[key];
     if (rval === undefined) {
       return Promise.resolve()
