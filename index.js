@@ -6,7 +6,7 @@ Promise.all(
     "navigate.ts",
     "board.ts",
     "controls.ts",
-    "cache.ts",
+    "cache_w.ts",
     "lichess.ts",
     "log.ts",
   ].map((fileName) =>
@@ -24,5 +24,5 @@ Promise.all(
   .then(() => (document.title = title));
 
 function main() {
-  move_history.record();
+  navigate.init();
 }

@@ -29,8 +29,8 @@ class Board {
     this.board = Chessboard("board", {
       position: position.split(" ")[0] || "start",
       draggable: true,
-      onDrop: this.onDrop,
-      onChange: this.onChange,
+      onDrop: this.onDrop.bind(this),
+      onChange: this.onChange.bind(this),
       orientation,
       pieceTheme:
         "./vendor/chessboardjs.com/chessboardjs-1.0.0/img/chesspieces/wikipedia/{piece}.png",
@@ -40,11 +40,16 @@ class Board {
   onDrop(from: string, to: string, piece: string): "snapback" | undefined {
     const promotion = this.get_promotion(to, piece);
 
+    const moves_promise = lichess.get_moves();
+
     const move = this.chess.move({ from, to, promotion });
 
     if (move === null) return "snapback";
 
-    Promise.resolve().then(navigate.record).then(this.maybe_reply);
+    moves_promise
+      .then((moves) => ({ moves, move }))
+      .then(navigate.record)
+      .then(this.maybe_reply);
   }
 
   onChange(old_position: Position, new_position: Position) {
@@ -78,38 +83,30 @@ class Board {
 
   async reply(): Promise<void> {
     try {
-      await Promise.resolve();
-      const move = await this.pick_reply();
-      return this.apply_reply(move);
+      const choice = await this.pick_reply();
+      return this.apply_reply(choice);
     } catch (err) {
       alert(err);
       throw err;
     }
   }
 
-  async pick_reply(): Promise<string> {
-    const loaded = await cache_w.load(this.board.fen(), () =>
-      lichess.get_moves(this.chess.fen())
-    );
-    const moves = loaded.rval;
-    if (moves.length === 0) {
-      // we have a brand new move
-      return "";
-    }
-    const weights = moves.map((i) => i.black + i.white + i.draws);
+  async pick_reply(): Promise<{ move: string; moves: Move[] }> {
+    const moves = await lichess.get_moves();
+    const weights = moves.map((m) => m.black + m.white + m.draws);
     var choice = Math.random() * weights.reduce((a, b) => a + b, 0);
-    for (let i_1 = 0; i_1 < weights.length; i_1++) {
-      choice -= weights[i_1];
-      if (choice <= 0) return moves[i_1].move;
+    for (let i = 0; i < weights.length; i++) {
+      choice -= weights[i];
+      if (choice <= 0) return { move: moves[i].move, moves };
     }
     throw Error("pick_reply");
   }
 
-  apply_reply(move: string) {
-    if (!move) return;
-    this.chess.move(move);
+  apply_reply(choice: { move: string; moves: Move[] }) {
+    if (!choice) return;
+    this.chess.move(choice.move);
     this.rerender();
-    navigate.record();
+    navigate.record(choice);
   }
 }
 
