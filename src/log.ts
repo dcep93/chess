@@ -16,21 +16,25 @@ class Log {
     const player = fen.split(" ")[1];
     const move = choice.move;
     const turn = parseInt(fen.split(" ")[5]);
-    const chosen = choice.moves.find((i) => i.move === choice.move)?.total || 0;
-    if (chosen === 0) controls.auto_reply.checked = false;
+    const chosen = choice.moves.find((i) => i.move === choice.move) || {
+      total: 0,
+      draws: 0,
+      white: 0,
+      black: 0,
+    };
+    if (chosen.total === 0) controls.auto_reply.checked = false;
+    console.log(chosen);
     const pick =
-      (100 * chosen) /
+      (100 * chosen.total) /
       choice.moves.map((i) => i.total).reduce((a, b) => a + b, 0);
-    const sf = await this.stockfish(fen);
-    const text = `${move} - sf/${sf.toFixed(1)} p/${pick.toFixed(
-      1
-    )} t/${chosen}`;
-    this._append_cell(player, text, turn);
-  }
 
-  async stockfish(fen: string): Promise<number> {
-    // todo
-    return cache_w.load(`stockfish:${fen}`, async () => 0);
+    const text = `${move} - ww/${(
+      (100 * chosen.white) /
+      (chosen.white + chosen.black)
+    ).toFixed(1)} d/${((100 * chosen.draws) / chosen.total).toFixed(
+      1
+    )} p/${pick.toFixed(1)} t/${chosen.total}`;
+    this._append_cell(player, text, turn);
   }
 
   _append_cell(player: string, text: string, turn: number): void {
@@ -52,6 +56,7 @@ class Log {
   }
 
   _write_cell(className: string, row: HTMLDivElement, text: string): void {
+    // todo make a grid
     row.getElementsByClassName(className)[0].innerHTML = text;
   }
 }

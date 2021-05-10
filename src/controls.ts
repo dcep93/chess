@@ -2,8 +2,6 @@ class Controls {
   auto_reply = document.getElementById("auto_reply") as HTMLInputElement;
 
   constructor() {
-    // todo
-    // Show/hide next move preview that looks like lichess
     document.getElementById("new_game").onclick = this.new_game.bind(this);
     document.getElementById(
       "different_move"

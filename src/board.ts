@@ -101,6 +101,7 @@ class Board {
 
   async pick_reply(): Promise<{ move: string; moves: Move[] }> {
     const moves = await lichess.get_moves();
+    // todo weight based on blunders too
     const weights = moves.map((m) => m.black + m.white + m.draws);
     var choice = Math.random() * weights.reduce((a, b) => a + b, 0);
     for (let i = 0; i < weights.length; i++) {
