@@ -92,13 +92,13 @@ class Log {
     return [
       this.to_chars(move.move, 5),
       this.to_chars(Math.min(best_non, 420).toFixed(1), 4),
-      this.to_chars(`t/${move.total}`, 8),
       this.to_chars(`p/${pick.toFixed(1)}`, 6),
       this.to_chars(
         `ww/${((100 * move.white) / (move.white + move.black)).toFixed(1)}`,
         7
       ),
       this.to_chars(`d/${((100 * move.draws) / move.total).toFixed(1)}`, 7),
+      this.to_chars(`t/${move.total}`, 8),
     ].join(" ");
   }
 
