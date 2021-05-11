@@ -43,6 +43,8 @@ class Board {
   onDrop(from: string, to: string, piece: string): "snapback" | undefined {
     const promotion = this.get_promotion(to, piece);
 
+    const hash = this.get_hash();
+
     const moves_promise = lichess.get_moves(this.chess.fen());
 
     const v_move = this.chess.move({ from, to, promotion });
@@ -52,22 +54,30 @@ class Board {
     const c_history = this.chess.history();
     const move = c_history[c_history.length - 1];
 
-    // todo record this as the best move if shift is held
-    // todo how to clear best move
-
     moves_promise
       .then((moves) => ({ moves, move }))
+      .then((choice) => {
+        if (controls.is_shift)
+          localStorage.setItem(hash, JSON.stringify(choice));
+        return choice;
+      })
       .then(navigate.record.bind(navigate))
       .then(this.maybe_reply.bind(this));
   }
 
   onChange(old_position: Position, new_position: Position) {
     const fen = this.chess.fen().split(" ")[0];
-    location.hash = `${this.board.orientation()}//${this.chess.fen()}`.replace(
+    const hash = this.get_hash();
+    location.hash = hash;
+    controls.set_clear_novelty();
+    if (Chessboard.objToFen(new_position) !== fen) this.rerender();
+  }
+
+  get_hash(): string {
+    return `${this.board.orientation()}//${this.chess.fen()}`.replace(
       / /g,
       "_"
     );
-    if (Chessboard.objToFen(new_position) !== fen) this.rerender();
   }
 
   rerender() {
@@ -94,10 +104,17 @@ class Board {
   }
 
   async best(): Promise<void> {
-    const moves = await lichess.get_moves();
-    if (moves.length === 0) return;
-    const move = moves.sort((a, b) => b.total - a.total)[0].move;
-    this.apply_reply({ move, moves });
+    var choice_str = localStorage.getItem(this.get_hash());
+    var choice;
+    if (choice_str) {
+      choice = JSON.parse(choice_str);
+    } else {
+      const moves = await lichess.get_moves();
+      if (moves.length === 0) return;
+      const move = moves.sort((a, b) => b.total - a.total)[0].move;
+      choice = { move, moves };
+    }
+    this.apply_reply(choice);
     this.maybe_reply();
   }
 

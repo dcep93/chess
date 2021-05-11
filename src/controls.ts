@@ -1,6 +1,8 @@
 class Controls {
   auto_reply = document.getElementById("auto_reply") as HTMLInputElement;
   is_active = false;
+  is_shift = false;
+  clear_novelty = document.getElementById("clear_novelty") as HTMLButtonElement;
 
   constructor() {
     document.getElementById("new_game").onclick = this.queue(
@@ -21,14 +23,26 @@ class Controls {
     document.getElementById("best").onclick = this.queue(
       board.best.bind(board)
     );
-    document.body.onkeydown = (ev) => {
+    this.clear_novelty.onclick = this.queue(() => {
+      localStorage.removeItem(board.get_hash());
+      this.clear_novelty.disabled = true;
+    });
+    document.body.onkeydown = (ev) =>
       ({
         ArrowLeft: navigate.undo.bind(navigate),
         ArrowRight: navigate.redo.bind(navigate),
         ArrowUp: board.best.bind(board),
         ArrowDown: this.new_game.bind(this),
+        Shift: () => (this.is_shift = true),
       }[ev.key]?.());
-    };
+    document.body.onkeyup = (ev) =>
+      ev.key === "Shift" && (this.is_shift = false);
+    this.set_clear_novelty();
+  }
+
+  set_clear_novelty() {
+    this.clear_novelty.disabled =
+      localStorage.getItem(board.get_hash()) === null;
   }
 
   queue(f: () => void) {
