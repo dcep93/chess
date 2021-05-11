@@ -1,11 +1,10 @@
 class Lichess {
   async get_moves(fen: string = ""): Promise<Move[]> {
     if (!fen) fen = board.chess.fen();
-    return cache_w.load(`lichess:${fen}`, async () => {
-      console.log("lichess", fen);
-      const response = await fetch(
-        `https://explorer.lichess.ovh/master?fen=${fen}`
-      );
+    const url = `https://explorer.lichess.ovh/lichess?variant=standard&speeds[]=classical&ratings[]=1800&ratings[]=2000&fen=${fen}`;
+    return cache_w.load(url, async () => {
+      console.log(url);
+      const response = await fetch(url);
       const json = await response.json();
       return json.moves.map((m: any) => ({
         total: m.black + m.white + m.draws,

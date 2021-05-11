@@ -12,7 +12,7 @@ type LRUCache = {
 };
 
 class CacheW {
-  _version: string = "0.0.1";
+  _version: string = "0.0.2";
   _size: number = 1000;
   _cache: LRUCache;
   _logged = false;
