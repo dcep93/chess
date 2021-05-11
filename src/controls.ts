@@ -1,5 +1,6 @@
 class Controls {
   auto_reply = document.getElementById("auto_reply") as HTMLInputElement;
+  opening = document.getElementById("opening") as HTMLDivElement;
   is_active = false;
   is_shift = false;
   clear_novelty = document.getElementById("clear_novelty") as HTMLButtonElement;

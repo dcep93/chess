@@ -66,8 +66,9 @@ class Board {
   }
 
   onChange(old_position: Position, new_position: Position) {
-    // todo name opening
     const fen = this.chess.fen().split(" ")[0];
+    const name = openings.fen_to_name[fen];
+    if (name) controls.opening.innerText = name;
     const hash = this.get_hash();
     location.hash = hash;
     controls.set_clear_novelty();
