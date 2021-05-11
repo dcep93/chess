@@ -8,7 +8,7 @@ type Move = {
 
 class Log {
   div = document.getElementById("log");
-  logs = [];
+  logs: HTMLDivElement[] = [];
   async log(
     fen: string,
     choice: { move: string; moves: Move[] }
@@ -32,6 +32,11 @@ class Log {
     );
   }
 
+  maybe_unlog(): void {
+    if (board.chess.fen().split(" ")[1] === "w")
+      this.div.removeChild(this.logs.shift());
+  }
+
   clear(): void {
     this.logs.forEach((l) => this.div.removeChild(l));
     this.logs = [];
@@ -50,6 +55,7 @@ class Log {
         .cloneNode(true) as HTMLDivElement;
       row.hidden = false;
       row.id = "";
+      row.setAttribute("turn", turn.toString());
       this.div.appendChild(row);
       this.logs.unshift(row);
       this._write_cell("turn", row, `${turn}.`, moves);

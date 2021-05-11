@@ -31,6 +31,7 @@ class Navigate {
     const undid = this.history[--this.index];
     board.chess.load(undid.fen);
     board.rerender();
+    log.maybe_unlog();
     return true;
   }
 
