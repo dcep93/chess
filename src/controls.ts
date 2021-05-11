@@ -21,6 +21,14 @@ class Controls {
     document.getElementById("best").onclick = this.queue(
       board.best.bind(board)
     );
+    document.body.onkeydown = (ev) => {
+      ({
+        ArrowLeft: navigate.undo.bind(navigate),
+        ArrowRight: navigate.redo.bind(navigate),
+        ArrowUp: board.best.bind(board),
+        ArrowDown: this.new_game.bind(this),
+      }[ev.key]?.());
+    };
   }
 
   queue(f: () => void) {
