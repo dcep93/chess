@@ -3,7 +3,7 @@ const Chess = (window as any).Chess;
 
 type Position = {};
 
-// todo modularize
+// todo modularize and enqueue stuff
 class Board {
   chess: {
     reset(): void;
