@@ -113,7 +113,8 @@ class Board {
     } else {
       const moves = await lichess.get_moves();
       if (moves.length === 0) return;
-      const move = moves.sort((a, b) => b.total - a.total)[0].move;
+      const color = this.board.orientation();
+      const move = moves.sort((a, b) => b[color] - a[color])[0].move;
       choice = { move, moves };
     }
     this.apply_reply(choice);
