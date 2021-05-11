@@ -58,7 +58,6 @@ class Board {
   }
 
   onChange(old_position: Position, new_position: Position) {
-    console.log("onChange");
     const fen = this.chess.fen().split(" ")[0];
     location.hash = `${this.board.orientation()}//${this.chess.fen()}`.replace(
       / /g,
@@ -68,7 +67,6 @@ class Board {
   }
 
   rerender() {
-    console.log("rerender");
     const fen = this.chess.fen().split(" ")[0];
     setTimeout(() => this.board.position(fen, true));
   }
