@@ -3,6 +3,7 @@ const Chess = (window as any).Chess;
 
 type Position = {};
 
+// todo modularize
 class Board {
   chess: {
     reset(): void;
@@ -50,6 +51,9 @@ class Board {
 
     const c_history = this.chess.history();
     const move = c_history[c_history.length - 1];
+
+    // todo record this as the best move if shift is held
+    // todo how to clear best move
 
     moves_promise
       .then((moves) => ({ moves, move }))

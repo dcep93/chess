@@ -22,8 +22,6 @@ class Navigate {
 
     if (!choice) return;
 
-    // todo if saved as such, auto advance repertoire
-
     return log.log(fen, choice);
   }
 
