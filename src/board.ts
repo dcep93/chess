@@ -38,7 +38,7 @@ class Board {
   }
 
   last_move(): string {
-    return this.chess.history()[0];
+    return this.chess.history()[this.chess.history().length - 1];
   }
 
   move(move: string): void {
