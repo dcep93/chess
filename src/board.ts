@@ -64,46 +64,25 @@ class Board {
     this._rerender();
   }
 
-  async onDrop(
-    from: string,
-    to: string,
-    piece: string
-  ): Promise<"snapback" | undefined> {
-    console.log("onDrop");
-    const moves = await lichess.get_moves();
+  onDrop(from: string, to: string, piece: string): "snapback" | undefined {
+    const moves_promise = lichess.get_moves();
 
     const promotion = this.get_promotion(to, piece);
     const v_move = this._chess.move({ from, to, promotion });
     if (v_move === null) return "snapback";
 
-    brain.on_drop(moves);
+    brain.on_drop(moves_promise);
   }
 
   onChange(old_position: Position, new_position: Position) {
-    this._enqueue(async () => {
-      console.log("onChange");
-      brain.on_change();
-      const fen = this.fen().split(" ")[0];
-      if (Chessboard.objToFen(new_position) !== fen) this._rerender();
-    });
+    brain.on_change();
+    const fen = this.fen().split(" ")[0];
+    if (Chessboard.objToFen(new_position) !== fen) this._rerender();
   }
 
   _rerender() {
-    this._enqueue(async () => {
-      console.log("rerender");
-      const fen = this.fen().split(" ")[0];
-      return Promise.resolve().then(() => this._board.position(fen, true));
-    });
-  }
-
-  queue = [];
-  async _enqueue(f: () => Promise<void>) {
-    this.queue.push(f);
-    while (true) {
-      var g = this.queue.shift();
-      if (!g) return;
-      await g();
-    }
+    const fen = this.fen().split(" ")[0];
+    return Promise.resolve().then(() => this._board.position(fen, true));
   }
 
   get_promotion(to: string, piece: string): string | null {

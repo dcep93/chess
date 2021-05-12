@@ -6,7 +6,8 @@ class Brain {
     return [orientation, fen];
   }
 
-  on_drop(moves: Move[]) {
+  async on_drop(moves_promise: Promise<Move[]>) {
+    const moves = await moves_promise;
     const move = navigate.last_move();
 
     const choice = { moves, move };
