@@ -52,7 +52,7 @@ class Controls {
         this.is_active = true;
         f();
       } finally {
-        this.is_active = false;
+        setTimeout(() => (this.is_active = false), 500);
       }
     };
   }
