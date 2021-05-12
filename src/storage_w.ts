@@ -3,9 +3,9 @@ class StorageW {
     localStorage.setItem(`novelty:${hash}`, JSON.stringify(choice));
   }
 
-  get_novelty(hash: string): { move: string; moves: Move[] } | undefined {
+  get_novelty(hash: string): { move: string; moves: Move[] } | null {
     const str = localStorage.getItem(`novelty:${hash}`);
-    if (!str) return undefined;
+    if (!str) return null;
     return JSON.parse(str);
   }
 

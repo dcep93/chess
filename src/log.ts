@@ -33,7 +33,7 @@ class Log {
   }
 
   maybe_unlog(): void {
-    if (board.fen().split(" ")[1] === "w")
+    if (board.fen().split(" ")[1] === "w" && this.logs.length > 0)
       this.div.removeChild(this.logs.shift());
   }
 
