@@ -65,13 +65,14 @@ class Board {
   }
 
   onDrop(from: string, to: string, piece: string): "snapback" | undefined {
+    const hash = brain.get_hash();
     const moves_promise = lichess.get_moves();
 
     const promotion = this.get_promotion(to, piece);
     const v_move = this._chess.move({ from, to, promotion });
     if (v_move === null) return "snapback";
 
-    brain.on_drop(moves_promise);
+    brain.on_drop(hash, moves_promise);
   }
 
   onChange(old_position: Position, new_position: Position) {

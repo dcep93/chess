@@ -6,12 +6,11 @@ class Brain {
     return [orientation, fen];
   }
 
-  async on_drop(moves_promise: Promise<Move[]>) {
+  async on_drop(hash: string, moves_promise: Promise<Move[]>) {
     const moves = await moves_promise;
     const move = navigate.last_move();
 
     const choice = { moves, move };
-    const hash = this.get_hash();
     if (controls.is_shift) localStorage.setItem(hash, JSON.stringify(choice));
 
     navigate.record(choice);
