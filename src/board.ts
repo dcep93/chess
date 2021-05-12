@@ -4,7 +4,7 @@ const Chess = (window as any).Chess;
 type Position = {};
 
 class Board {
-  _chess: {
+  chess: {
     reset(): void;
     load(fen: string): void;
     move(
@@ -15,7 +15,7 @@ class Board {
     turn(): string;
     history(): string[];
   };
-  _board: {
+  board: {
     flip(): void;
     position(fen: string, useAnimation: boolean): void;
     orientation(): string;
@@ -24,9 +24,9 @@ class Board {
 
   constructor() {
     const [orientation, fen] = brain.get_orientation_fen();
-    this._chess = new Chess();
-    if (fen) this._chess.load(fen);
-    this._board = Chessboard("board", {
+    this.chess = new Chess();
+    if (fen) this.chess.load(fen);
+    this.board = Chessboard("board", {
       position: fen.split(" ")[0] || "start",
       draggable: true,
       onDrop: this.onDrop.bind(this),
@@ -38,34 +38,34 @@ class Board {
   }
 
   last_move(): string {
-    return this._chess.history()[0];
+    return this.chess.history()[0];
   }
 
   move(move: string): void {
-    this._chess.move(move);
-    this._rerender();
+    this.chess.move(move);
+    this.rerender();
   }
 
   fen(): string {
-    return this._chess.fen();
+    return this.chess.fen();
   }
 
   load(fen: string) {
-    this._chess.load(fen);
-    this._rerender();
+    this.chess.load(fen);
+    this.rerender();
   }
 
   orientation(): string {
-    return this._board.orientation();
+    return this.board.orientation();
   }
 
   flip(): void {
-    this._board.flip();
+    this.board.flip();
   }
 
   reset(): void {
-    this._chess.reset();
-    this._rerender();
+    this.chess.reset();
+    this.rerender();
   }
 
   onDrop(from: string, to: string, piece: string): "snapback" | undefined {
@@ -73,7 +73,7 @@ class Board {
     const moves_promise = lichess.get_moves();
 
     const promotion = this.get_promotion(to, piece);
-    const v_move = this._chess.move({ from, to, promotion });
+    const v_move = this.chess.move({ from, to, promotion });
     if (v_move === null) return "snapback";
 
     brain.on_drop(hash, moves_promise);
@@ -82,12 +82,12 @@ class Board {
   onChange(old_position: Position, new_position: Position) {
     brain.on_change();
     const fen = this.fen().split(" ")[0];
-    if (Chessboard.objToFen(new_position) !== fen) this._rerender();
+    if (Chessboard.objToFen(new_position) !== fen) this.rerender();
   }
 
-  _rerender() {
+  rerender() {
     const fen = this.fen().split(" ")[0];
-    return Promise.resolve().then(() => this._board.position(fen, true));
+    Promise.resolve().then(() => this.board.position(fen, true));
   }
 
   get_promotion(to: string, piece: string): string | null {

@@ -24,7 +24,7 @@ class Log {
       move,
     };
     if (chosen.total === 0) controls.auto_reply.checked = false;
-    this._append_cell(
+    this.append_cell(
       player,
       this.move_to_text(chosen, choice.moves),
       turn,
@@ -42,12 +42,7 @@ class Log {
     this.logs = [];
   }
 
-  _append_cell(
-    player: string,
-    text: string,
-    turn: number,
-    moves: Move[]
-  ): void {
+  append_cell(player: string, text: string, turn: number, moves: Move[]): void {
     var row: HTMLDivElement;
     if (player === "b") {
       row = document
@@ -58,15 +53,15 @@ class Log {
       row.setAttribute("turn", turn.toString());
       this.div.appendChild(row);
       this.logs.unshift(row);
-      this._write_cell("turn", row, `${turn}.`, moves);
+      this.write_cell("turn", row, `${turn}.`, moves);
     } else {
-      if (this.logs.length === 0) this._append_cell("b", "...", turn, moves);
+      if (this.logs.length === 0) this.append_cell("b", "...", turn, moves);
       row = this.logs[0];
     }
-    this._write_cell(player, row, text, moves);
+    this.write_cell(player, row, text, moves);
   }
 
-  _write_cell(
+  write_cell(
     className: string,
     row: HTMLDivElement,
     text: string,
