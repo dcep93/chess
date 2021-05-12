@@ -1,6 +1,6 @@
 class Navigate {
   index: number;
-  history: { fen: string }[];
+  history: { fen: string; move: string }[];
 
   constructor() {
     this.reset();
@@ -16,9 +16,9 @@ class Navigate {
   }
 
   record(choice: { move: string; moves: Move[] } | null) {
-    const fen = board.chess.fen();
+    const fen = board.fen();
     this.history.splice(++this.index);
-    this.history.push({ fen });
+    this.history.push({ fen, move: choice.move });
 
     if (!choice) return;
 
@@ -29,8 +29,7 @@ class Navigate {
     if (this.index <= 0) return false;
     controls.auto_reply.checked = true;
     const undid = this.history[--this.index];
-    board.chess.load(undid.fen);
-    board.rerender();
+    board.load(undid.fen);
     log.maybe_unlog();
     return true;
   }
@@ -38,8 +37,12 @@ class Navigate {
   redo() {
     if (this.index >= this.history.length - 1) return;
     const redid = this.history[++this.index];
-    board.chess.load(redid.fen);
-    board.rerender();
+    board.load(redid.fen);
+  }
+
+  last_move(): string {
+    if (this.index === -1) return "";
+    return this.history[this.index].move;
   }
 }
 

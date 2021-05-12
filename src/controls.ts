@@ -19,20 +19,20 @@ class Controls {
       navigate.redo.bind(navigate)
     );
     document.getElementById("reply").onclick = this.queue(
-      board.reply.bind(board)
+      brain.reply.bind(brain)
     );
     document.getElementById("best").onclick = this.queue(
-      board.best.bind(board)
+      brain.best.bind(brain)
     );
     this.clear_novelty.onclick = this.queue(() => {
-      localStorage.removeItem(board.get_hash());
+      localStorage.removeItem(brain.get_hash());
       this.clear_novelty.disabled = true;
     });
     document.body.onkeydown = (ev) =>
       ({
         ArrowLeft: navigate.undo.bind(navigate),
         ArrowRight: navigate.redo.bind(navigate),
-        ArrowUp: board.best.bind(board),
+        ArrowUp: brain.best.bind(brain),
         ArrowDown: this.new_game.bind(this),
         Shift: () => (this.is_shift = true),
       }[ev.key]?.());
@@ -43,7 +43,7 @@ class Controls {
 
   set_clear_novelty() {
     this.clear_novelty.disabled =
-      localStorage.getItem(board.get_hash()) === null;
+      localStorage.getItem(brain.get_hash()) === null;
   }
 
   queue(f: () => void) {
@@ -61,19 +61,17 @@ class Controls {
   new_game() {
     log.clear();
     navigate.reset();
-    board.board.flip();
-    board.chess.reset();
+    board.flip();
+    board.reset();
     navigate.record(null);
-    board.rerender();
-    board.maybe_reply();
+    brain.maybe_reply();
     this.auto_reply.checked = true;
   }
 
   different_move() {
-    const c_history = board.chess.history();
-    const move = c_history[c_history.length - 1];
+    const move = navigate.last_move();
     if (!navigate.undo()) return;
-    board.reply(move);
+    brain.reply(move);
   }
 }
 

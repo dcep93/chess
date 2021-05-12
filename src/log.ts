@@ -33,7 +33,7 @@ class Log {
   }
 
   maybe_unlog(): void {
-    if (board.chess.fen().split(" ")[1] === "w")
+    if (board.fen().split(" ")[1] === "w")
       this.div.removeChild(this.logs.shift());
   }
 
@@ -74,12 +74,11 @@ class Log {
   ): void {
     // todo color if I blunder
     const cell = row.getElementsByClassName(className)[0] as HTMLElement;
-    const orientation = board.board.orientation();
-    const fen = board.chess.fen();
+    const orientation = board.orientation();
+    const fen = board.fen();
     cell.onclick = () => {
-      board.chess.load(fen);
-      if (orientation !== board.board.orientation()) board.board.flip();
-      board.rerender();
+      board.load(fen);
+      if (orientation !== board.orientation()) board.flip();
     };
     cell.title = moves
       .sort((a, b) => b.total - a.total)

@@ -3,9 +3,9 @@ const Chess = (window as any).Chess;
 
 type Position = {};
 
-// todo modularize and enqueue stuff
+// todo queue
 class Board {
-  chess: {
+  _chess: {
     reset(): void;
     load(fen: string): void;
     move(
@@ -16,7 +16,7 @@ class Board {
     turn(): string;
     history(): string[];
   };
-  board: {
+  _board: {
     flip(): void;
     position(fen: string, useAnimation: boolean): void;
     orientation(): string;
@@ -24,13 +24,11 @@ class Board {
   };
 
   constructor() {
-    const [orientation, position] = (
-      location.hash.substr(1).replace(/_/g, " ") || "white//"
-    ).split("//");
-    this.chess = new Chess();
-    if (position) this.chess.load(position);
-    this.board = Chessboard("board", {
-      position: position.split(" ")[0] || "start",
+    const [orientation, fen] = brain.get_orientation_fen();
+    this._chess = new Chess();
+    if (fen) this._chess.load(fen);
+    this._board = Chessboard("board", {
+      position: fen.split(" ")[0] || "start",
       draggable: true,
       onDrop: this.onDrop.bind(this),
       onChange: this.onChange.bind(this),
@@ -40,51 +38,55 @@ class Board {
     });
   }
 
-  onDrop(from: string, to: string, piece: string): "snapback" | undefined {
+  move(move: string): void {
+    this._chess.move(move);
+    this._rerender();
+  }
+
+  fen(): string {
+    return this._chess.fen();
+  }
+
+  load(fen: string) {
+    this._chess.load(fen);
+  }
+
+  orientation(): string {
+    return this._board.orientation();
+  }
+
+  flip(): void {
+    this._board.flip();
+  }
+
+  reset(): void {
+    this._chess.reset();
+    this._rerender();
+  }
+
+  async onDrop(
+    from: string,
+    to: string,
+    piece: string
+  ): Promise<"snapback" | undefined> {
+    const moves = await lichess.get_moves();
+
     const promotion = this.get_promotion(to, piece);
-
-    const hash = this.get_hash();
-
-    const moves_promise = lichess.get_moves(this.chess.fen());
-
-    const v_move = this.chess.move({ from, to, promotion });
-
+    const v_move = this._chess.move({ from, to, promotion });
     if (v_move === null) return "snapback";
 
-    const c_history = this.chess.history();
-    const move = c_history[c_history.length - 1];
-
-    moves_promise
-      .then((moves) => ({ moves, move }))
-      .then((choice) => {
-        if (controls.is_shift)
-          localStorage.setItem(hash, JSON.stringify(choice));
-        return choice;
-      })
-      .then(navigate.record.bind(navigate))
-      .then(this.maybe_reply.bind(this));
+    brain.on_drop(moves);
   }
 
   onChange(old_position: Position, new_position: Position) {
-    const fen = this.chess.fen().split(" ")[0];
-    const name = openings.fen_to_name[fen];
-    if (name) controls.opening.innerText = name;
-    const hash = this.get_hash();
-    location.hash = hash;
-    controls.set_clear_novelty();
-    if (Chessboard.objToFen(new_position) !== fen) this.rerender();
+    brain.on_change();
+    const fen = this.fen().split(" ")[0];
+    if (Chessboard.objToFen(new_position) !== fen) this._rerender();
   }
 
-  get_hash(): string {
-    return `${this.board.orientation()}//${this.chess.fen()}`.replace(
-      / /g,
-      "_"
-    );
-  }
-
-  rerender() {
-    const fen = this.chess.fen().split(" ")[0];
-    setTimeout(() => this.board.position(fen, true));
+  _rerender() {
+    const fen = this.fen().split(" ")[0];
+    setTimeout(() => this._board.position(fen, true));
   }
 
   get_promotion(to: string, piece: string): string | null {
@@ -97,61 +99,6 @@ class Board {
         if (confirm(`Promote to ${p}?`)) return p;
       }
     }
-  }
-
-  maybe_reply() {
-    if (!controls.auto_reply.checked) return;
-    if (this.chess.turn() === this.board.orientation().charAt(0)) return;
-    return this.reply("");
-  }
-
-  async best(): Promise<void> {
-    var choice_str = localStorage.getItem(this.get_hash());
-    var choice;
-    if (choice_str) {
-      choice = JSON.parse(choice_str);
-    } else {
-      const moves = await lichess.get_moves();
-      if (moves.length === 0) return;
-      const color = this.board.orientation();
-      const move = moves.sort((a, b) => b[color] - a[color])[0].move;
-      choice = { move, moves };
-    }
-    this.apply_reply(choice);
-    this.maybe_reply();
-  }
-
-  async reply(different: string): Promise<void> {
-    try {
-      const choice = await this.pick_reply(different);
-      this.apply_reply(choice);
-      this.maybe_reply();
-    } catch (err) {
-      alert(err);
-      throw err;
-    }
-  }
-
-  async pick_reply(
-    different: string
-  ): Promise<{ move: string; moves: Move[] }> {
-    const moves = await lichess.get_moves();
-    const weights = moves.map(
-      (m) => m.total / (m.move === different ? 100 : 1)
-    );
-    var choice = Math.random() * weights.reduce((a, b) => a + b, 0);
-    for (let i = 0; i < weights.length; i++) {
-      choice -= weights[i];
-      if (choice <= 0) return { move: moves[i].move, moves };
-    }
-    throw Error("pick_reply");
-  }
-
-  apply_reply(choice: { move: string; moves: Move[] }) {
-    if (!choice) return;
-    this.chess.move(choice.move);
-    this.rerender();
-    navigate.record(choice);
   }
 }
 
