@@ -18,7 +18,7 @@ class Navigate {
   record(choice: { move: string; moves: Move[] } | null) {
     const fen = board.fen();
     this.history.splice(++this.index);
-    this.history.push({ fen, move: choice.move });
+    this.history.push({ fen, move: choice?.move });
 
     if (!choice) return;
 
@@ -41,7 +41,7 @@ class Navigate {
   }
 
   last_move(): string {
-    if (this.index === -1) return "";
+    if (this.index <= 0) return "";
     return this.history[this.index].move;
   }
 }

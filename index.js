@@ -3,6 +3,7 @@ document.title = "Loading...";
 
 Promise.all(
   [
+    "brain.ts",
     "navigate.ts",
     "board.ts",
     "controls.ts",

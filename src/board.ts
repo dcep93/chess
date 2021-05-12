@@ -49,6 +49,7 @@ class Board {
 
   load(fen: string) {
     this._chess.load(fen);
+    this._rerender();
   }
 
   orientation(): string {
