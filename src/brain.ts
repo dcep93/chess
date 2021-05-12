@@ -39,7 +39,6 @@ class Brain {
   async best(): Promise<void> {
     var choice = storage_w.get_novelty(this.get_hash());
     if (!choice) {
-    } else {
       const moves = await lichess.get_moves();
       if (moves.length === 0) return;
       const color = board.orientation();
