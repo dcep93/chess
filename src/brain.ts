@@ -11,7 +11,7 @@ class Brain {
     const move = navigate.last_move();
 
     const choice = { moves, move };
-    if (controls.is_shift) localStorage.setItem(hash, JSON.stringify(choice));
+    if (controls.is_shift) storage_w.set_novelty(hash, choice);
 
     navigate.record(choice);
     this.maybe_reply();
@@ -37,10 +37,8 @@ class Brain {
   }
 
   async best(): Promise<void> {
-    var choice_str = localStorage.getItem(this.get_hash());
-    var choice;
-    if (choice_str) {
-      choice = JSON.parse(choice_str);
+    var choice = storage_w.get_novelty(this.get_hash());
+    if (!choice) {
     } else {
       const moves = await lichess.get_moves();
       if (moves.length === 0) return;

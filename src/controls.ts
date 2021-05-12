@@ -25,7 +25,7 @@ class Controls {
       brain.best.bind(brain)
     );
     this.clear_novelty.onclick = this.queue(() => {
-      localStorage.removeItem(brain.get_hash());
+      storage_w.clear_novelty(brain.get_hash());
       this.clear_novelty.disabled = true;
     });
     document.body.onkeydown = (ev) =>
@@ -42,8 +42,7 @@ class Controls {
   }
 
   set_clear_novelty() {
-    this.clear_novelty.disabled =
-      localStorage.getItem(brain.get_hash()) === null;
+    this.clear_novelty.disabled = !storage_w.get_novelty(brain.get_hash());
   }
 
   queue(f: () => void) {

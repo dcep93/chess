@@ -3,6 +3,7 @@ document.title = "Loading...";
 
 Promise.all(
   [
+    "storage_w.ts",
     "brain.ts",
     "navigate.ts",
     "board.ts",
