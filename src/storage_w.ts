@@ -1,4 +1,13 @@
 class StorageW {
+  version = "0.0.1";
+
+  constructor() {
+    if (localStorage.getItem("version") !== this.version) {
+      localStorage.clear();
+      localStorage.setItem("version", this.version);
+    }
+  }
+
   set_novelty(hash: string, choice: { move: string; moves: Move[] }) {
     localStorage.setItem(`novelty:${hash}`, JSON.stringify(choice));
   }
