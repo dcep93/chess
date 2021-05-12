@@ -68,7 +68,7 @@ class Controls {
   }
 
   different_move() {
-    const move = navigate.last_move();
+    const move = board.last_move();
     if (!navigate.undo()) return;
     brain.reply(move);
   }

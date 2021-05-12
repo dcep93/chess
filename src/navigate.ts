@@ -39,11 +39,6 @@ class Navigate {
     const redid = this.history[++this.index];
     board.load(redid.fen);
   }
-
-  last_move(): string {
-    if (this.index <= 0) return "";
-    return this.history[this.index].move;
-  }
 }
 
 const navigate = new Navigate();

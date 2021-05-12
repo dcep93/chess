@@ -8,7 +8,7 @@ class Brain {
 
   async on_drop(hash: string, moves_promise: Promise<Move[]>) {
     const moves = await moves_promise;
-    const move = navigate.last_move();
+    const move = board.last_move();
 
     const choice = { moves, move };
     if (controls.is_shift) storage_w.set_novelty(hash, choice);

@@ -37,6 +37,10 @@ class Board {
     });
   }
 
+  last_move(): string {
+    return this._chess.history()[0];
+  }
+
   move(move: string): void {
     this._chess.move(move);
     this._rerender();
