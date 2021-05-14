@@ -42,7 +42,9 @@ class Brain {
       const moves = await lichess.get_moves();
       if (moves.length === 0) return;
       const color = board.orientation();
-      const move = moves.sort((a, b) => b[color] - a[color])[0].move;
+      const move = moves
+        .map((m) => ({ move: m.move, score: m[color] / Math.sqrt(m.total) }))
+        .sort((a, b) => b.score - a.score)[0].move;
       choice = { move, moves };
     }
     this.apply_reply(choice);
