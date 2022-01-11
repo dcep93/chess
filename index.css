@@ -7,6 +7,10 @@ body {
   width: 400px;
 }
 
+#main {
+  display: flex;
+}
+
 #log {
   max-height: 500px;
   overflow-y: scroll;
@@ -18,4 +22,8 @@ body {
   display: inline-block;
   margin-right: 5em;
   white-space: pre;
+}
+
+.instructions {
+  padding-left: 15px;
 }
