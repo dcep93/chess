@@ -17,7 +17,6 @@ class Navigate {
 
   undo(): boolean {
     if (this.index <= 0) return false;
-    controls.auto_reply.checked = true;
     const undid = this.history[--this.index];
     board.load(undid.fen);
     log.unlog();
