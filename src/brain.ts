@@ -20,7 +20,6 @@ class Brain {
   on_change() {
     const fen = board.fen().split(" ")[0];
     const name = openings.fen_to_name[fen];
-    console.log(fen, name, openings.fen_to_name);
     if (name) controls.opening.innerText = name;
     const hash = this.get_hash();
     location.hash = hash;

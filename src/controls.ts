@@ -27,6 +27,7 @@ class Controls {
     this.clear_novelty.onclick = this.queue(this.do_clear_novelty.bind(this));
     document.body.onkeydown = (ev) =>
       ({
+        Enter: this.different_move.bind(this),
         ArrowLeft: navigate.undo.bind(navigate),
         ArrowRight: navigate.redo.bind(navigate),
         ArrowUp: brain.best.bind(brain),

@@ -53,7 +53,7 @@ class Log {
       row.setAttribute("turn", turn.toString());
       this.div.appendChild(row);
       this.logs.unshift(row);
-      this.write_cell("turn", row, `${turn}.`, moves);
+      row.getElementsByClassName("turn")[0].innerHTML = `${turn}.`;
     } else {
       if (this.logs.length === 0) this.append_cell("b", "...", turn, moves);
       row = this.logs[0];
