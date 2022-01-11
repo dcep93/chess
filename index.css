@@ -4,16 +4,24 @@ body {
 }
 
 #board {
-  width: 400px;
+  width: 350px;
 }
 
 #main {
-  display: flex;
+  display: inline-flex;
+  flex-wrap: wrap;
+  width: 100vw;
+}
+
+#log_wrapper {
+  display: inline-block;
+  overflow:scroll;
 }
 
 #log {
+  width: 65em;
   max-height: 500px;
-  overflow-y: scroll;
+  overflow: scroll;
   font-family: "Courier New", Courier, monospace;
 }
 
@@ -22,6 +30,9 @@ body {
   display: inline-block;
   margin-right: 5em;
   white-space: pre;
+}
+
+#all_instructions {
 }
 
 .instructions {

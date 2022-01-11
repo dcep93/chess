@@ -38,45 +38,51 @@
             </div>
           </div>
         </div>
-        <div>
-          <div>note: draggong on the board doesn't yet work for mobile</div>
-          <div>keyboard shortcuts:</div>
-          <div class="instructions">
-            <div>left: undo</div>
-            <div>right: redo</div>
-            <div>up: best move</div>
-            <div>down: new game (switch sides)</div>
-            <div>enter: different_move</div>
-            <div>shift+move: create novelty</div>
-            <div>space: clear novelty</div>
-          </div>
-          <div>log fields:</div>
-          <div class="instructions">
-            <div>(mouse over the log for a list of common moves)</div>
-            <div>(click the log to jump)</div>
-            <div>s/move score (max 420)</div>
-            <div>p/move frequency / 100</div>
-            <div>ww/odds that white wins</div>
-            <div>d/odds that the game is a draw</div>
-            <div>t/total number of games</div>
-          </div>
-          <div>novelty:</div>
-          <div class="instructions">
-            <div>if you have a favorite move in a position</div>
-            <div>that isn't necessarily the best,</div>
-            <div>create a novelty to define a "best move"</div>
-            <div>in the future, using "best move" will play this</div>
-            <div>instead of the default "best move"</div>
-            <div>hold shift when moving to create a novelty</div>
+      </div>
+      <div id="log_wrapper">
+        <div id="log">
+          <div id="opening"></div>
+          <div hidden id="log_template">
+            <span class="turn"></span>
+            <span class="move w"></span>
+            <span class="move b"></span>
           </div>
         </div>
       </div>
-      <div id="log">
-        <div id="opening"></div>
-        <div hidden id="log_template">
-          <span class="turn"></span>
-          <span class="move w"></span>
-          <span class="move b"></span>
+      <div id="all_instructions">
+        <div>mobile:</div>
+        <div class="instructions">
+          <div>dragging on the board doesn't yet work for mobile</div>
+          <div>use "best move" to test yourself in your head</div>
+        </div>
+        <div>keyboard shortcuts:</div>
+        <div class="instructions">
+          <div>left: undo</div>
+          <div>right: redo</div>
+          <div>up: best move</div>
+          <div>down: new game (switch sides)</div>
+          <div>enter: different_move</div>
+          <div>shift+move: create novelty</div>
+          <div>space: clear novelty</div>
+        </div>
+        <div>log fields:</div>
+        <div class="instructions">
+          <div>(mouse over the log for a list of common moves)</div>
+          <div>(click the log to jump)</div>
+          <div>s/move score (max 420)</div>
+          <div>p/move frequency / 100</div>
+          <div>ww/odds that white wins</div>
+          <div>d/odds that the game is a draw</div>
+          <div>t/total number of games</div>
+        </div>
+        <div>novelty:</div>
+        <div class="instructions">
+          <div>if you have a favorite move in a position</div>
+          <div>that isn't necessarily the best,</div>
+          <div>create a novelty to define a "best move"</div>
+          <div>in the future, using "best move" will play this</div>
+          <div>instead of the default "best move"</div>
+          <div>hold shift when moving to create a novelty</div>
         </div>
       </div>
     </div>
