@@ -1,5 +1,4 @@
 body {
-
   background-color: grey;
 }
 
@@ -10,7 +9,6 @@ body {
 #main {
   display: inline-flex;
   flex-wrap: wrap;
-  width: 100vw;
 }
 
 #log_wrapper {
