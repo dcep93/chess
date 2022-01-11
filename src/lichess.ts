@@ -1,6 +1,6 @@
 class Lichess {
-  async get_moves(): Promise<Move[]> {
-    const fen = board.fen();
+  async get_moves(fen: string = null): Promise<Move[]> {
+    if (!fen) fen = board.fen();
     const url = `https://explorer.lichess.ovh/lichess?variant=standard&speeds[]=classical&ratings[]=1800&ratings[]=2000&fen=${fen}`;
     var moves = storage_w.get_lichess(url);
     if (!moves) {

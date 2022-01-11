@@ -66,7 +66,7 @@ class Controls {
     navigate.reset();
     board.flip();
     board.reset();
-    navigate.record(null);
+    navigate.reset();
     brain.maybe_reply();
     this.auto_reply.checked = true;
   }

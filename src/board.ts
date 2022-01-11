@@ -87,7 +87,7 @@ class Board {
 
   rerender() {
     const fen = this.fen().split(" ")[0];
-    Promise.resolve().then(() => this.board.position(fen, true));
+    this.board.position(fen, true);
   }
 
   get_promotion(to: string, piece: string): string | null {

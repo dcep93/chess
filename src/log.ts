@@ -13,7 +13,8 @@ class Log {
     fen: string,
     choice: { move: string; moves: Move[] }
   ): Promise<void> {
-    const player = fen.split(" ")[1];
+    const playerToMove = fen.split(" ")[1];
+    const player = playerToMove === "w" ? "b" : "w";
     const move = choice.move;
     const turn = parseInt(fen.split(" ")[5]);
     const chosen = choice.moves.find((i) => i.move === choice.move) || {
@@ -32,9 +33,12 @@ class Log {
     );
   }
 
-  maybe_unlog(): void {
-    if (board.fen().split(" ")[1] === "w" && this.logs.length > 0)
+  unlog(): void {
+    if (board.fen().split(" ")[1] === "w") {
       this.div.removeChild(this.logs.shift());
+    } else {
+      this.logs[0].getElementsByClassName("b")[0].innerHTML = "";
+    }
   }
 
   clear(): void {
@@ -44,7 +48,7 @@ class Log {
 
   append_cell(player: string, text: string, turn: number, moves: Move[]): void {
     var row: HTMLDivElement;
-    if (player === "b") {
+    if (player === "w") {
       row = document
         .getElementById("log_template")
         .cloneNode(true) as HTMLDivElement;
@@ -55,7 +59,7 @@ class Log {
       this.logs.unshift(row);
       row.getElementsByClassName("turn")[0].innerHTML = `${turn}.`;
     } else {
-      if (this.logs.length === 0) this.append_cell("b", "...", turn, moves);
+      if (this.logs.length === 0) this.append_cell("w", "...", turn - 1, moves);
       row = this.logs[0];
     }
     this.write_cell(player, row, text, moves);
