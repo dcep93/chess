@@ -11,10 +11,6 @@ class Navigate {
     this.history = [];
   }
 
-  init() {
-    this.record(null);
-  }
-
   record(choice: { move: string; moves: Move[] } | null) {
     const fen = board.fen();
     this.history.splice(++this.index);

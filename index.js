@@ -11,6 +11,7 @@ Promise.all(
     "lichess.ts",
     "log.ts",
     "openings.ts",
+    "init.ts",
   ].map((fileName) =>
     fetch(`./src/${fileName}`)
       .then((response) => response.text())
@@ -18,14 +19,9 @@ Promise.all(
   )
 )
   .then((codes) => codes.map(eval))
-  .then(() => main())
+  .then(() => init())
   .catch((err) => {
     alert(err);
     throw err;
   })
   .then(() => (document.title = title));
-
-function main() {
-  navigate.init();
-  document.body.hidden = false;
-}
