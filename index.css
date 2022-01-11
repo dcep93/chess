@@ -21,6 +21,10 @@ body {
   overflow: scroll;
   font-family: "Courier New", Courier, monospace;
   padding-bottom: 2em;
+  max-height: 10em;
+  padding: 10px;
+  margin: 10px;
+  border: 2px black solid;
 }
 
 #opening {
@@ -44,6 +48,13 @@ body {
   flex-grow: 1;
   max-height: 205px;
   overflow: scroll;
+  display: inline-block;
+}
+
+#sub_instructions {
+  padding: 10px;
+  margin: 10px;
+  border: 2px black solid;
 }
 
 .instructions {
