@@ -1,7 +1,7 @@
 class Brain {
   get_orientation_fen() {
     const [orientation, fen] = (
-      location.hash.substr(1).replace(/_/g, " ") || "white//"
+      location.hash.substring(1).replace(/_/g, " ") || "white//"
     ).split("//");
     return [orientation, fen];
   }

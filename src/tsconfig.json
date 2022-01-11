@@ -1,0 +1,1 @@
+{ "include": ["*"], "compilerOptions": { "target": "es2020" } }

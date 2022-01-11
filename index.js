@@ -27,4 +27,5 @@ Promise.all(
 
 function main() {
   navigate.init();
+  document.body.hidden = false;
 }

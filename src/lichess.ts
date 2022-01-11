@@ -14,7 +14,7 @@ class Lichess {
       }));
       storage_w.set_lichess(url, moves);
     }
-    return moves;
+    return Promise.resolve(moves);
   }
 }
 

@@ -3,7 +3,7 @@ class Openings {
 
   constructor() {
     ["a.tsv", "b.tsv", "c.tsv", "d.tsv", "e.tsv"].forEach((f) =>
-      fetch(`./eco/${f}`)
+      fetch(`./vendor/eco/${f}`)
         .then((response) => response.text())
         .then((text) =>
           text
