@@ -60,6 +60,8 @@ body {
 #all_instructions {
   flex-grow: 1;
   display: inline-block;
+  max-height: 250px;
+  overflow: scroll;
 }
 
 #sub_instructions {
