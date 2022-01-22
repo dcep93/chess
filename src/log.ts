@@ -91,8 +91,8 @@ class Log {
     const pick = (100 * move.total) / total;
     const best_non =
       (100 * move.total) /
-      moves.filter((m) => m !== move).sort((a, b) => b.total - a.total)[0]
-        ?.total;
+      (moves.filter((m) => m !== move).sort((a, b) => b.total - a.total)[0]
+        ?.total || 1);
     return [
       this.to_chars(move.move, 5),
       `s/${this.to_chars(Math.min(best_non, 420).toFixed(1), 5)}`,
