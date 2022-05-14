@@ -15,7 +15,6 @@ class BestOpenings {
   run_helper(is_white: boolean, chess) {
     return best_openings
       .get_popular_fens(is_white, chess)
-      .then((popular_fens) => popular_fens.filter((obj, i) => i < 5))
       .then((popular_fens) => {
         console.log(
           `searching ${popular_fens.length} popular openings for ${
@@ -26,7 +25,7 @@ class BestOpenings {
       })
       .then((popular_fens) =>
         Promise.all(
-          popular_fens.map((fen) =>
+          Object.entries(popular_fens).map(([fen, moves]) =>
             Promise.all([
               lichess.get_moves(fen, my_elo),
               lichess.get_moves(fen),
@@ -48,6 +47,7 @@ class BestOpenings {
                 better_score,
                 diff: my_score.score - better_score.score,
                 fen,
+                moves,
               }))
           )
         )
@@ -57,17 +57,21 @@ class BestOpenings {
         objs.map((obj) => [
           obj.diff,
           openings.fen_to_name[obj.fen.split(" ")[0]],
+          obj.moves.join(" "),
           obj,
         ])
       )
       .then((objs) => objs.forEach((obj) => console.log(...obj)));
   }
 
-  get_popular_fens(is_white: boolean, chess): Promise<string[]> {
+  get_popular_fens(
+    is_white: boolean,
+    chess
+  ): Promise<{ [fen: string]: string[] }> {
     const fen = board.fen();
     return best_openings.get_fens_helper(
-      [{ fen, percentage: 1 }],
-      new Set(),
+      [{ fen, percentage: 1, moves: [] }],
+      {},
       1,
       is_white,
       chess
@@ -75,39 +79,47 @@ class BestOpenings {
   }
 
   get_fens_helper(
-    fens_to_find: { fen: string; percentage: number }[],
-    found_fens: Set<string>,
+    fens_to_find: { fen: string; percentage: number; moves: string[] }[],
+    found_fens: { [fen: string]: string[] },
     move_number: number,
     is_white: boolean,
     chess: ChessType
-  ): Promise<string[]> {
+  ): Promise<{ [fen: string]: string[] }> {
     if (fens_to_find.length === 0 || move_number > max_depth)
-      return Promise.resolve(Array.from(found_fens));
-    const next_fens_to_find: { fen: string; percentage: number }[] = [];
+      return Promise.resolve(found_fens);
+    const next_fens_to_find: {
+      fen: string;
+      percentage: number;
+      moves: string[];
+    }[] = [];
     return Promise.all(
-      fens_to_find.map(({ fen, percentage }) =>
-        lichess.get_moves(fen).then((moves) => ({
-          moves: moves.sort((a, b) => b.total - a.total),
-          total: moves.map((move) => move.total).reduce((a, b) => a + b, 0),
+      fens_to_find.map(({ fen, percentage, moves }) =>
+        lichess.get_moves(fen).then((next_moves) => ({
+          next_moves: next_moves.sort((a, b) => b.total - a.total),
+          total: next_moves
+            .map((move) => move.total)
+            .reduce((a, b) => a + b, 0),
           fen,
           percentage,
+          moves,
         }))
       )
     )
       .then((objs) =>
         objs.map((obj) =>
-          obj.moves
+          obj.next_moves
             .map((move) => ({
               percentage:
                 Boolean(move_number % 2) === is_white
                   ? obj.percentage
                   : (obj.percentage * move.total) / obj.total,
               fen: best_openings.get_next_fen(obj.fen, move.move, chess),
+              moves: obj.moves.concat(move.move),
             }))
-            .filter((next_obj) => !found_fens.has(next_obj.fen)) // small bug if games transpose
+            .filter((next_obj) => !found_fens[next_obj.fen]) // small bug if games transpose
             .map((next_obj) => {
               next_fens_to_find.push(next_obj);
-              found_fens.add(next_obj.fen);
+              found_fens[next_obj.fen] = next_obj.moves;
             })
         )
       )
