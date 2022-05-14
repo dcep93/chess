@@ -66,6 +66,11 @@ class BestOpenings {
 
   get_popular_fens(is_white: boolean, chess): Promise<string[]> {
     const fen = board.fen();
+    if (is_white) {
+      lichess.get_moves(fen, [1600]).then((moves) => console.log(moves[0]));
+      lichess.get_moves(fen, [2000]).then((moves) => console.log(moves[0]));
+    }
+    return Promise.resolve([]);
     return best_openings.get_fens_helper(
       [{ fen, percentage: 1 }],
       new Set(),

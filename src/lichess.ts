@@ -15,6 +15,7 @@ class Lichess {
     const ratings_str = ratings.map((r) => `&ratings[]=${r}`).join("");
     const url = `https://explorer.lichess.ovh/lichess?variant=standard&speeds[]=rapid&speeds[]=classical${ratings_str}&fen=${fen}`;
     var moves = storage_w.get_lichess(url);
+    moves = null;
     if (!moves) {
       console.log(url);
       const response = await fetch(url);
