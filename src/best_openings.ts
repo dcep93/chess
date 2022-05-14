@@ -1,7 +1,7 @@
 const my_elo: [number, number] = [1600, 1800];
 
 const cutoff = 0.1;
-const max_depth = 2;
+const max_depth = 3;
 
 class BestOpenings {
   run() {
@@ -15,6 +15,7 @@ class BestOpenings {
   run_helper(is_white: boolean, chess) {
     return best_openings
       .get_popular_fens(is_white, chess)
+      .then((popular_fens) => Object.entries(popular_fens))
       .then((popular_fens) => {
         console.log(
           `searching ${popular_fens.length} popular openings for ${
@@ -25,7 +26,7 @@ class BestOpenings {
       })
       .then((popular_fens) =>
         Promise.all(
-          Object.entries(popular_fens).map(([fen, moves]) =>
+          popular_fens.map(([fen, moves]) =>
             Promise.all([
               lichess.get_moves(fen, my_elo),
               lichess.get_moves(fen),
@@ -117,6 +118,7 @@ class BestOpenings {
               fen: best_openings.get_next_fen(obj.fen, move.move, chess),
               moves: obj.moves.concat(move.move),
             }))
+            .filter((next_obj) => next_obj.percentage > cutoff)
             .filter((next_obj) => !found_fens[next_obj.fen]) // small bug if games transpose
             .map((next_obj) => {
               next_fens_to_find.push(next_obj);
