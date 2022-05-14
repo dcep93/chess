@@ -9,7 +9,8 @@ const ratings = {
 class Lichess {
   async get_moves(
     fen: string = null,
-    ratings: [number, number] = [1800, 2200]
+    ratings: [number, number] = [1800, 2200],
+    attempt: number = 1
   ): Promise<Move[]> {
     if (!fen) fen = board.fen();
     const url = `https://explorer.lichess.ovh/lichess?variant=standard&speeds=rapid,classical&ratings=${ratings.join(
@@ -17,9 +18,16 @@ class Lichess {
     )}&fen=${fen}`;
     var moves = storage_w.get_lichess(url);
     if (!moves) {
-      console.log(url);
+      console.log("fetching", attempt, url);
       const response = await fetch(url);
-      if (!response.ok) return [];
+      if (!response.ok)
+        return new Promise((resolve, reject) =>
+          setTimeout(() => {
+            lichess
+              .get_moves(fen, ratings, attempt + 1)
+              .then((moves) => resolve(moves));
+          }, 1000)
+        );
       const json = await response.json();
       moves = json.moves.map((m: any) => ({
         total: m.black + m.white + m.draws,

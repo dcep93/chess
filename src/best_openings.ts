@@ -24,35 +24,7 @@ class BestOpenings {
         );
         return popular_fens;
       })
-      .then((popular_fens) =>
-        Promise.all(
-          popular_fens.map(([fen, moves]) =>
-            Promise.all([
-              lichess.get_moves(fen, my_elo),
-              lichess.get_moves(fen),
-            ])
-              .then((nested_moves) =>
-                nested_moves
-                  .map((moves) => ({
-                    wins: moves
-                      .map((move) => (is_white ? move.white : move.black))
-                      .reduce((a, b) => a + b, 0),
-                    total: moves
-                      .map((move) => move.total)
-                      .reduce((a, b) => a + b, 0),
-                  }))
-                  .map((obj) => ({ ...obj, score: obj.wins / obj.total }))
-              )
-              .then(([my_score, better_score]) => ({
-                my_score,
-                better_score,
-                diff: my_score.score - better_score.score,
-                fen,
-                moves,
-              }))
-          )
-        )
-      )
+      .then((popular_fens) => best_openings.get_objs(popular_fens, is_white))
       .then((objs) => objs.sort((a, b) => b.diff - a.diff))
       .then((objs) => objs.filter((obj) => obj.diff > 0.01))
       .then((objs) =>
@@ -141,6 +113,41 @@ class BestOpenings {
     chess.load(fen);
     chess.move(move);
     return chess.fen();
+  }
+
+  async get_objs(
+    popular_fens: [string, string[]][],
+    is_white: boolean
+  ): Promise<{ fen: string; moves: string[]; diff: number }[]> {
+    const rval = [];
+    for (let i = 0; i < popular_fens.length; i++) {
+      console.log(i, popular_fens.length);
+      const [fen, moves] = popular_fens[i];
+
+      await Promise.all([
+        lichess.get_moves(fen, my_elo),
+        lichess.get_moves(fen),
+      ])
+        .then((nested_moves) =>
+          nested_moves
+            .map((moves) => ({
+              wins: moves
+                .map((move) => (is_white ? move.white : move.black))
+                .reduce((a, b) => a + b, 0),
+              total: moves.map((move) => move.total).reduce((a, b) => a + b, 0),
+            }))
+            .map((obj) => ({ ...obj, score: obj.wins / obj.total }))
+        )
+        .then(([my_score, better_score]) => ({
+          my_score,
+          better_score,
+          diff: my_score.score - better_score.score,
+          fen,
+          moves,
+        }))
+        .then((obj) => rval.push(obj));
+    }
+    return rval;
   }
 }
 
