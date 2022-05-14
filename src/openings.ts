@@ -18,7 +18,9 @@ class Openings {
               })
           )
       )
-    ).then(() => null);
+    )
+      .then(best_openings.run)
+      .then(() => null);
   }
 }
 

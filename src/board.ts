@@ -3,18 +3,20 @@ const Chess = (window as any).Chess;
 
 type Position = {};
 
+type ChessType = {
+  reset(): void;
+  load(fen: string): void;
+  move(
+    args: string | { from: string; to: string; promotion: string | null }
+  ): string | null;
+  fen(): string;
+  moves(): string[];
+  turn(): string;
+  history(): string[];
+};
+
 class Board {
-  chess: {
-    reset(): void;
-    load(fen: string): void;
-    move(
-      args: string | { from: string; to: string; promotion: string | null }
-    ): string | null;
-    fen(): string;
-    moves(): string[];
-    turn(): string;
-    history(): string[];
-  };
+  chess: ChessType;
   board: {
     flip(): void;
     position(fen: string, useAnimation: boolean): void;

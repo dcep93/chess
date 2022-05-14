@@ -1,5 +1,5 @@
 class StorageW {
-  version = "0.0.1";
+  version = "0.1.0";
 
   constructor() {
     if (localStorage.getItem("version") !== this.version) {
