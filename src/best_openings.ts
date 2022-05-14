@@ -1,7 +1,7 @@
 const my_elo: [number, number] = [1600, 1800];
 
 const cutoff = 0.1;
-const max_depth = 1;
+const max_depth = 2;
 
 class BestOpenings {
   run() {
@@ -53,6 +53,7 @@ class BestOpenings {
         )
       )
       .then((objs) => objs.sort((a, b) => b.diff - a.diff))
+      .then((objs) => objs.filter((obj) => obj.diff > 0.01))
       .then((objs) =>
         objs.map((obj) => [
           obj.diff,

@@ -19,6 +19,7 @@ class Lichess {
     if (!moves) {
       console.log(url);
       const response = await fetch(url);
+      if (!response.ok) return [];
       const json = await response.json();
       moves = json.moves.map((m: any) => ({
         total: m.black + m.white + m.draws,
