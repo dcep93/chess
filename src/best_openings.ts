@@ -1,5 +1,4 @@
-const my_elo = 1600;
-const better_elo = 2000;
+const my_elo: [number, number] = [1600, 1800];
 
 const cutoff = 0.1;
 const max_depth = 1;
@@ -29,8 +28,8 @@ class BestOpenings {
         Promise.all(
           popular_fens.map((fen) =>
             Promise.all([
-              lichess.get_moves(fen, [my_elo]),
-              lichess.get_moves(fen, [better_elo]),
+              lichess.get_moves(fen, my_elo),
+              lichess.get_moves(fen),
             ])
               .then((nested_moves) =>
                 nested_moves
@@ -66,11 +65,6 @@ class BestOpenings {
 
   get_popular_fens(is_white: boolean, chess): Promise<string[]> {
     const fen = board.fen();
-    if (is_white) {
-      lichess.get_moves(fen, [1600]).then((moves) => console.log(moves[0]));
-      lichess.get_moves(fen, [2000]).then((moves) => console.log(moves[0]));
-    }
-    return Promise.resolve([]);
     return best_openings.get_fens_helper(
       [{ fen, percentage: 1 }],
       new Set(),

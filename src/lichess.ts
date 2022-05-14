@@ -9,13 +9,13 @@ const ratings = {
 class Lichess {
   async get_moves(
     fen: string = null,
-    ratings: number[] = [1800, 2000, 2200]
+    ratings: [number, number] = [1800, 2200]
   ): Promise<Move[]> {
     if (!fen) fen = board.fen();
-    const ratings_str = ratings.map((r) => `&ratings[]=${r}`).join("");
-    const url = `https://explorer.lichess.ovh/lichess?variant=standard&speeds[]=rapid&speeds[]=classical${ratings_str}&fen=${fen}`;
+    const url = `https://explorer.lichess.ovh/lichess?variant=standard&speeds=rapid,classical&ratings=${ratings.join(
+      ","
+    )}&fen=${fen}`;
     var moves = storage_w.get_lichess(url);
-    moves = null;
     if (!moves) {
       console.log(url);
       const response = await fetch(url);
