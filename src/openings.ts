@@ -20,6 +20,10 @@ class Openings {
       )
     ).then(() => null);
   }
+
+  get(fen: string): string | undefined {
+    return this.fen_to_name[fen.split(" ")[0]];
+  }
 }
 
 const openings = new Openings();
