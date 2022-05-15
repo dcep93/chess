@@ -14,7 +14,7 @@ class Brain {
     if (controls.is_shift) storage_w.set_novelty(hash, choice);
 
     navigate.record(choice);
-    this.maybe_reply();
+    this.maybe_reply(true);
   }
 
   on_change() {
@@ -30,7 +30,8 @@ class Brain {
     return `${board.orientation()}//${board.fen()}`.replace(/ /g, "_");
   }
 
-  maybe_reply() {
+  maybe_reply(from_drop: boolean) {
+    if (memorize.callback(from_drop)) return;
     if (!controls.auto_reply.checked) return;
     if (board.is_my_turn()) return;
     const choice = storage_w.get_novelty(this.get_hash());
@@ -50,14 +51,14 @@ class Brain {
       choice = { move, moves };
     }
     this.apply_reply(choice);
-    this.maybe_reply();
+    this.maybe_reply(false);
   }
 
   async reply(different: string): Promise<void> {
     try {
       const choice = await this.pick_reply(different);
       this.apply_reply(choice);
-      this.maybe_reply();
+      this.maybe_reply(false);
     } catch (err) {
       alert(err);
       throw err;

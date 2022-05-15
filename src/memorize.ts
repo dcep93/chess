@@ -7,11 +7,14 @@ type MemorizeMove = {
 };
 
 class Memorize {
-  form = document.getElementById("memorize_form");
-  input: HTMLInputElement = document.getElementById(
-    "memorize_input"
-  ) as HTMLInputElement;
   chess = new Chess();
+  resolve = null;
+
+  callback(from_drop: boolean) {
+    if (this.resolve === null) return false;
+    this.resolve(from_drop);
+    return true;
+  }
 
   run() {
     console.log("memorize", percentage);
@@ -57,37 +60,30 @@ class Memorize {
         openings.get(exploring.fen)
       );
       this.load_to_board(exploring.fen);
-      setTimeout(() => this.input.focus());
       await new Promise((resolve) => {
-        this.form.onsubmit = () => {
-          // todo: I dont know button
-          const my_move = this.input.value;
-          this.input.value = "";
+        this.resolve = resolve;
+      })
+        .then((from_drop) => {
+          this.resolve = null;
+          return from_drop;
+        })
+        .then((from_drop) => {
+          const my_move = board.last_move();
           const next_fen = this.get_fen(exploring.fen, my_move);
-          if (next_fen === exploring.fen) {
-            alert("invalid move");
-          } else {
-            const short_fen = next_fen.split(" ")[0];
-            const moved = {
-              percentage:
-                exploring.percentage +
-                (found[short_fen] || { percentage: 0 }).percentage,
-              moves: exploring.moves.concat(my_move),
-              fen: next_fen,
-            };
-            found[short_fen] = moved;
-            // todo print move stats
-            this.input.hidden = true;
-            this.get_opponent_moves(moved)
-              .then((next_to_explore) =>
-                this.find_moves(next_to_explore, found)
-              )
-              .then(resolve);
-          }
-          return false;
-        };
-        this.input.hidden = false;
-      });
+          const short_fen = next_fen.split(" ")[0];
+          const moved = {
+            percentage:
+              exploring.percentage +
+              (found[short_fen] || { percentage: 0 }).percentage,
+            moves: exploring.moves.concat(my_move),
+            fen: next_fen,
+          };
+          found[short_fen] = moved;
+          if (from_drop)
+            return this.get_opponent_moves(moved).then((next_to_explore) =>
+              this.find_moves(next_to_explore, found)
+            );
+        });
     }
     return Promise.resolve(Object.values(found));
   }
@@ -126,7 +122,7 @@ class Memorize {
     fen: string,
     obj: { moves: string[]; percentage: number }
   ): [string, string] {
-    // todo with opening
+    // todo with opening and image
     const moves = obj.moves.slice();
     const last_move = moves.pop();
     moves.push(obj.percentage.toFixed(2));
