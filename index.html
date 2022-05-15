@@ -1,94 +1,95 @@
 <html>
-  <head>
+
+<head>
     <title>Opening Explorer</title>
     <link rel="icon" href="vendor/chess.com/favicon.ico" />
-    <link
-      rel="stylesheet"
-      href="vendor/chessboardjs.com/chessboardjs-1.0.0/css/chessboard-1.0.0.min.css"
-    />
+    <link rel="stylesheet" href="vendor/chessboardjs.com/chessboardjs-1.0.0/css/chessboard-1.0.0.min.css" />
     <script src="vendor/code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="vendor/chessboardjs.com/chessboardjs-1.0.0/js/chessboard-1.0.0.min.js"></script>
     <script src="vendor/chess.js/chess.js"></script>
     <script src="vendor/unpkg.com/typescript@latest/lib/typescriptServices.js"></script>
     <link rel="stylesheet" type="text/css" href="index.css" />
-  </head>
-  <body hidden>
+</head>
+
+<body hidden>
     <div id="main">
-      <div id="board_wrapper">
-        <div>
-          <div id="board"></div>
-        </div>
-        <div>
-          <div>
+        <div id="board_wrapper">
             <div>
-              <label>
+                <div id="board"></div>
+            </div>
+            <div>
+                <div>
+                    <div>
+                        <label>
                 <input type="checkbox" id="auto_reply" checked />Auto Reply
               </label>
+                    </div>
+                    <div>
+                        <button id="new_game">New Game</button>
+                        <button id="different_move">Different Move</button>
+                        <button id="memorize">Memorize</button>
+                    </div>
+                    <div>
+                        <button id="undo">Undo</button>
+                        <button id="redo">Redo</button>
+                        <button id="reply">Reply</button>
+                        <button id="best">Best</button>
+                        <button disabled id="clear_novelty">Clear Novelty</button>
+                    </div>
+                </div>
             </div>
-            <div>
-              <button id="new_game">New Game</button>
-              <button id="different_move">Different Move</button>
+        </div>
+        <div id="log_wrapper">
+            <div id="log">
+                <div id="opening"></div>
+                <div hidden id="log_template" class="turn_pair">
+                    <span class="turn"></span>
+                    <span class="move w"></span>
+                    <span class="move_margin"></span>
+                    <span class="move b"></span>
+                </div>
             </div>
-            <div>
-              <button id="undo">Undo</button>
-              <button id="redo">Redo</button>
-              <button id="reply">Reply</button>
-              <button id="best">Best</button>
-              <button disabled id="clear_novelty">Clear Novelty</button>
+        </div>
+        <div id="all_instructions">
+            <div id="sub_instructions">
+                <div>mobile:</div>
+                <div class="instructions">
+                    <div>dragging on the board doesn't yet work for mobile</div>
+                    <div>use "best move" to test yourself in your head</div>
+                </div>
+                <div>keyboard shortcuts:</div>
+                <div class="instructions">
+                    <div>left: undo</div>
+                    <div>right: redo</div>
+                    <div>up: best move</div>
+                    <div>down: new game (switch sides)</div>
+                    <div>enter: different_move</div>
+                    <div>shift+move: create novelty</div>
+                    <div>space: clear novelty</div>
+                </div>
+                <div>log fields:</div>
+                <div class="instructions">
+                    <div>(mouse over the log for a list of common moves)</div>
+                    <div>(click the log to jump)</div>
+                    <div>s/move score (max 420)</div>
+                    <div>p/move frequency / 100</div>
+                    <div>ww/odds that white wins</div>
+                    <div>d/odds that the game is a draw</div>
+                    <div>t/total number of games</div>
+                </div>
+                <div>novelty:</div>
+                <div class="instructions">
+                    <div>if you have a favorite move in a position</div>
+                    <div>that isn't necessarily the best,</div>
+                    <div>create a novelty to define a "best move"</div>
+                    <div>in the future, using "best move" will play this</div>
+                    <div>instead of the default "best move"</div>
+                    <div>hold shift when moving to create a novelty</div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-      <div id="log_wrapper">
-        <div id="log">
-          <div id="opening"></div>
-          <div hidden id="log_template" class="turn_pair">
-            <span class="turn"></span>
-            <span class="move w"></span>
-            <span class="move_margin"></span>
-            <span class="move b"></span>
-          </div>
-        </div>
-      </div>
-      <div id="all_instructions">
-        <div id="sub_instructions">
-          <div>mobile:</div>
-          <div class="instructions">
-            <div>dragging on the board doesn't yet work for mobile</div>
-            <div>use "best move" to test yourself in your head</div>
-          </div>
-          <div>keyboard shortcuts:</div>
-          <div class="instructions">
-            <div>left: undo</div>
-            <div>right: redo</div>
-            <div>up: best move</div>
-            <div>down: new game (switch sides)</div>
-            <div>enter: different_move</div>
-            <div>shift+move: create novelty</div>
-            <div>space: clear novelty</div>
-          </div>
-          <div>log fields:</div>
-          <div class="instructions">
-            <div>(mouse over the log for a list of common moves)</div>
-            <div>(click the log to jump)</div>
-            <div>s/move score (max 420)</div>
-            <div>p/move frequency / 100</div>
-            <div>ww/odds that white wins</div>
-            <div>d/odds that the game is a draw</div>
-            <div>t/total number of games</div>
-          </div>
-          <div>novelty:</div>
-          <div class="instructions">
-            <div>if you have a favorite move in a position</div>
-            <div>that isn't necessarily the best,</div>
-            <div>create a novelty to define a "best move"</div>
-            <div>in the future, using "best move" will play this</div>
-            <div>instead of the default "best move"</div>
-            <div>hold shift when moving to create a novelty</div>
-          </div>
-        </div>
-      </div>
     </div>
     <script type="text/javascript" src="index.js"></script>
-  </body>
+</body>
+
 </html>

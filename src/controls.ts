@@ -12,6 +12,9 @@ class Controls {
     document.getElementById("different_move").onclick = this.queue(
       this.different_move.bind(this)
     );
+    document.getElementById("memorize").onclick = this.queue(
+      memorize.run.bind(memorize)
+    );
     document.getElementById("undo").onclick = this.queue(
       navigate.undo.bind(navigate)
     );
