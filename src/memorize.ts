@@ -49,7 +49,9 @@ class Memorize {
         openings.get(exploring.fen)
       );
       found[exploring.fen] = exploring;
+      const hash = location.hash;
       board.load(exploring.fen);
+      location.hash = hash;
       setTimeout(() => this.input.focus());
       await new Promise((resolve) => {
         this.form.onsubmit = () => {
