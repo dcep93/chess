@@ -27,10 +27,12 @@ class Memorize {
       .then((str) => {
         board.load(fen);
         console.log(str);
-        setTimeout(() => alert(str.split("\t").join(" ")), 1000);
+        setTimeout(() => alert(str.split("\t").join(" //// ")), 1000);
       });
   }
 
+  // todo depth first
+  // todo my_move last
   async find_moves(
     to_explore: { fen: string; percentage: number; moves: string[] }[],
     found: {
@@ -53,7 +55,8 @@ class Memorize {
       await new Promise((resolve, reject) => {
         this.form.onsubmit = () => {
           // todo: I dont know button
-          board.move(this.input.value);
+          const my_move = this.input.value;
+          board.move(my_move);
           this.input.value = "";
           const next_fen = board.fen();
           if (next_fen === exploring.fen) {
@@ -73,7 +76,7 @@ class Memorize {
                 obj.moves
                   .map((move) => ({
                     percentage: (exploring.percentage * move.total) / obj.total,
-                    moves: exploring.moves.concat(move.move),
+                    moves: exploring.moves.concat(my_move, move.move),
                     fen: this.get_fen(next_fen, move.move, chess),
                   }))
                   .map((obj) =>
@@ -114,8 +117,11 @@ class Memorize {
     obj: { moves: string[]; percentage: number },
     chess: any
   ): [string, string] {
-    // todo
-    return ["term", "definition"];
+    // todo with opening
+    const moves = obj.moves.slice();
+    const last_move = moves.pop();
+    moves.push(obj.percentage.toFixed(2));
+    return [moves.join(" "), last_move];
   }
 }
 
