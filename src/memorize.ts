@@ -1,5 +1,13 @@
 const percentage = 0.9;
 
+type MemorizeMove = {
+  fen: string;
+  short_fen: string;
+  percentage: number;
+  moves: string[];
+  has_children?: boolean;
+};
+
 class Memorize {
   form = document.getElementById("memorize_form");
   input: HTMLInputElement = document.getElementById(
@@ -10,7 +18,8 @@ class Memorize {
   run() {
     console.log("memorize", percentage);
     const fen = board.fen();
-    this.find_moves([{ fen, percentage: 1, moves: [] }], {})
+    this.find_moves([{ fen, short_fen: "", percentage: 1, moves: [] }], {})
+      .then((objs) => objs.filter((obj) => !obj.has_children))
       .then((objs) =>
         [
           `chess / ${openings.get(fen) || ""} / ${percentage * 100}% / ${
@@ -31,14 +40,13 @@ class Memorize {
       });
   }
 
-  // todo depth first
   // todo my_move last
   async find_moves(
-    to_explore: { fen: string; percentage: number; moves: string[] }[],
+    to_explore: MemorizeMove[],
     found: {
-      [fen: string]: { fen: string; moves: string[]; percentage: number };
+      [fen: string]: MemorizeMove;
     }
-  ): Promise<{ moves: string[]; percentage: number }[]> {
+  ): Promise<MemorizeMove[]> {
     for (let i = 0; i < to_explore.length; i++) {
       const exploring = to_explore[i];
       console.log(
@@ -46,7 +54,7 @@ class Memorize {
         exploring.moves,
         openings.get(exploring.fen)
       );
-      found[exploring.fen] = exploring;
+      found[exploring.short_fen] = exploring;
       this.load_to_board(exploring.fen);
       setTimeout(() => this.input.focus());
       await new Promise((resolve) => {
@@ -88,6 +96,13 @@ class Memorize {
                     })
                   )
                   .filter((obj) => obj.percentage > 1 - percentage)
+              )
+              .then(
+                (next_to_explore) =>
+                  (next_to_explore.length > 0 &&
+                    Object.assign(exploring, { has_children: true }) &&
+                    false) ||
+                  next_to_explore
               )
               .then((next_to_explore) =>
                 this.find_moves(next_to_explore, found)
