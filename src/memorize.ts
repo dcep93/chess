@@ -5,12 +5,12 @@ class Memorize {
   input: HTMLInputElement = document.getElementById(
     "memorize_input"
   ) as HTMLInputElement;
+  chess = new Chess();
 
   run() {
     console.log("memorize", percentage);
     const fen = board.fen();
-    const chess = new Chess();
-    this.find_moves([{ fen, percentage: 1, moves: [] }], {}, chess)
+    this.find_moves([{ fen, percentage: 1, moves: [] }], {})
       .then((objs) =>
         [
           `chess / ${openings.get(fen) || ""} / ${percentage * 100}% / ${
@@ -19,7 +19,7 @@ class Memorize {
         ]
           .concat(
             ...objs
-              .map((obj) => this.to_parts(fen, obj, chess))
+              .map((obj) => this.to_parts(fen, obj))
               .map((parts) => parts.join("\t"))
           )
           .join("\n")
@@ -37,8 +37,7 @@ class Memorize {
     to_explore: { fen: string; percentage: number; moves: string[] }[],
     found: {
       [fen: string]: { fen: string; moves: string[]; percentage: number };
-    },
-    chess: ChessType
+    }
   ): Promise<{ moves: string[]; percentage: number }[]> {
     if (to_explore.length === 0) return Promise.resolve(Object.values(found));
     const next_to_explore = [];
@@ -52,13 +51,12 @@ class Memorize {
       found[exploring.fen] = exploring;
       board.load(exploring.fen);
       setTimeout(() => this.input.focus());
-      await new Promise((resolve, reject) => {
+      await new Promise((resolve) => {
         this.form.onsubmit = () => {
           // todo: I dont know button
           const my_move = this.input.value;
-          board.move(my_move);
           this.input.value = "";
-          const next_fen = board.fen();
+          const next_fen = this.get_fen(exploring.fen, my_move);
           if (next_fen === exploring.fen) {
             alert("invalid move");
           } else {
@@ -77,7 +75,7 @@ class Memorize {
                   .map((move) => ({
                     percentage: (exploring.percentage * move.total) / obj.total,
                     moves: exploring.moves.concat(my_move, move.move),
-                    fen: this.get_fen(next_fen, move.move, chess),
+                    fen: this.get_fen(next_fen, move.move),
                   }))
                   .map((obj) =>
                     Object.assign(obj, {
@@ -103,19 +101,18 @@ class Memorize {
         this.input.hidden = false;
       });
     }
-    return this.find_moves(next_to_explore, found, chess);
+    return this.find_moves(next_to_explore, found);
   }
 
-  get_fen(starting_fen: string, move: string, chess: ChessType): string {
-    chess.load(starting_fen);
-    chess.move(move);
-    return chess.fen();
+  get_fen(starting_fen: string, move: string): string {
+    this.chess.load(starting_fen);
+    this.chess.move(move);
+    return this.chess.fen();
   }
 
   to_parts(
     fen: string,
-    obj: { moves: string[]; percentage: number },
-    chess: any
+    obj: { moves: string[]; percentage: number }
   ): [string, string] {
     // todo with opening
     const moves = obj.moves.slice();
