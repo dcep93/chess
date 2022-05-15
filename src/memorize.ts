@@ -2,10 +2,8 @@ const percentage = 0.9;
 
 type MemorizeMove = {
   fen: string;
-  short_fen: string;
   percentage: number;
   moves: string[];
-  has_children?: boolean;
 };
 
 class Memorize {
@@ -18,8 +16,7 @@ class Memorize {
   run() {
     console.log("memorize", percentage);
     const fen = board.fen();
-    this.find_moves([{ fen, short_fen: "", percentage: 1, moves: [] }], {})
-      .then((objs) => objs.filter((obj) => !obj.has_children))
+    this.find_moves([{ fen, percentage: 1, moves: [] }], {})
       .then((objs) =>
         [
           `chess / ${openings.get(fen) || ""} / ${percentage * 100}% / ${
@@ -40,7 +37,7 @@ class Memorize {
       });
   }
 
-  // todo my_move last
+  // todo starts with opponent move
   async find_moves(
     to_explore: MemorizeMove[],
     found: {
@@ -54,7 +51,6 @@ class Memorize {
         exploring.moves,
         openings.get(exploring.fen)
       );
-      found[exploring.short_fen] = exploring;
       this.load_to_board(exploring.fen);
       setTimeout(() => this.input.focus());
       await new Promise((resolve) => {
@@ -66,12 +62,23 @@ class Memorize {
           if (next_fen === exploring.fen) {
             alert("invalid move");
           } else {
+            const short_fen = next_fen.split(" ")[0];
+            const moved = {
+              percentage:
+                exploring.percentage +
+                (found[short_fen] || { percentage: 0 }).percentage,
+              moves: exploring.moves.concat(my_move),
+              fen: next_fen,
+            };
+            found[short_fen] = moved;
             // todo print move stats
             this.input.hidden = true;
             lichess
               .get_moves(next_fen)
               .then((moves) => ({
-                moves,
+                moves: moves.filter(
+                  (move) => my_move !== "e4" || move.move === "e5"
+                ),
                 total: moves
                   .map((move) => move.total)
                   .reduce((a, b) => a + b, 0),
@@ -79,30 +86,11 @@ class Memorize {
               .then((obj) =>
                 obj.moves
                   .map((move) => ({
-                    percentage: (exploring.percentage * move.total) / obj.total,
-                    moves: exploring.moves.concat(my_move, move.move),
+                    percentage: (moved.percentage * move.total) / obj.total,
+                    moves: moved.moves.concat(move.move),
                     fen: this.get_fen(next_fen, move.move),
                   }))
-                  .map((obj) =>
-                    Object.assign(obj, {
-                      short_fen: obj.fen.split(" ")[0],
-                    })
-                  )
-                  .map((obj) =>
-                    Object.assign(obj, {
-                      percentage:
-                        obj.percentage +
-                        (found[obj.short_fen] || { percentage: 0 }).percentage,
-                    })
-                  )
                   .filter((obj) => obj.percentage > 1 - percentage)
-              )
-              .then(
-                (next_to_explore) =>
-                  (next_to_explore.length > 0 &&
-                    Object.assign(exploring, { has_children: true }) &&
-                    false) ||
-                  next_to_explore
               )
               .then((next_to_explore) =>
                 this.find_moves(next_to_explore, found)
