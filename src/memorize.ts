@@ -19,7 +19,8 @@ class Memorize {
     to_explore: { fen: string; percentage: number; moves: string[] }[],
     found: { moves: string[]; percentage: number }[]
   ): Promise<{ moves: string[]; percentage: number }[]> {
-    return Promise.resolve(found);
+    if (to_explore.length === 0) return Promise.resolve(found);
+    throw Exception("not implemented");
   }
 
   to_parts(
