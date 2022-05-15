@@ -20,7 +20,7 @@ class Memorize {
     found: { moves: string[]; percentage: number }[]
   ): Promise<{ moves: string[]; percentage: number }[]> {
     if (to_explore.length === 0) return Promise.resolve(found);
-    throw Exception("not implemented");
+    throw Error("not implemented");
   }
 
   to_parts(
