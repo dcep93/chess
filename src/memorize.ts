@@ -76,9 +76,7 @@ class Memorize {
             lichess
               .get_moves(next_fen)
               .then((moves) => ({
-                moves: moves.filter(
-                  (move) => my_move !== "e4" || move.move === "e5"
-                ),
+                moves,
                 total: moves
                   .map((move) => move.total)
                   .reduce((a, b) => a + b, 0),
