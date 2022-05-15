@@ -39,8 +39,6 @@ class Memorize {
       [fen: string]: { fen: string; moves: string[]; percentage: number };
     }
   ): Promise<{ moves: string[]; percentage: number }[]> {
-    if (to_explore.length === 0) return Promise.resolve(Object.values(found));
-    const next_to_explore = [];
     for (let i = 0; i < to_explore.length; i++) {
       const exploring = to_explore[i];
       console.log(
@@ -49,9 +47,7 @@ class Memorize {
         openings.get(exploring.fen)
       );
       found[exploring.fen] = exploring;
-      const hash = location.hash;
-      board.load(exploring.fen);
-      location.hash = hash;
+      this.load_to_board(exploring.fen);
       setTimeout(() => this.input.focus());
       await new Promise((resolve) => {
         this.form.onsubmit = () => {
@@ -93,8 +89,8 @@ class Memorize {
                   )
                   .filter((obj) => obj.percentage > 1 - percentage)
               )
-              .then((append_to_explore) =>
-                next_to_explore.push(...append_to_explore)
+              .then((next_to_explore) =>
+                this.find_moves(next_to_explore, found)
               )
               .then(resolve);
           }
@@ -103,13 +99,19 @@ class Memorize {
         this.input.hidden = false;
       });
     }
-    return this.find_moves(next_to_explore, found);
+    return Promise.resolve(Object.values(found));
   }
 
   get_fen(starting_fen: string, move: string): string {
     this.chess.load(starting_fen);
     this.chess.move(move);
     return this.chess.fen();
+  }
+
+  load_to_board(fen: string) {
+    const hash = location.hash;
+    board.load(fen);
+    location.hash = hash;
   }
 
   to_parts(
