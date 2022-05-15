@@ -1,4 +1,4 @@
-const percentage = 0.5;
+const percentage = 0.9;
 
 class Memorize {
   form = document.getElementById("memorize_form");
@@ -10,29 +10,35 @@ class Memorize {
     console.log("memorize", percentage);
     const fen = board.fen();
     const chess = new Chess();
-    this.find_moves([{ fen, percentage: 1, moves: [] }], [], {}, chess)
-      .then((objs) => {
-        return [`chess / ${openings.get(fen) || ""} / ${percentage * 100}%`]
+    this.find_moves([{ fen, percentage: 1, moves: [] }], {}, chess)
+      .then((objs) =>
+        [
+          `chess / ${openings.get(fen) || ""} / ${percentage * 100}% / ${
+            objs.length
+          }`,
+        ]
           .concat(
             ...objs
               .map((obj) => this.to_parts(fen, obj, chess))
               .map((parts) => parts.join("\t"))
           )
-          .join("\n");
-      })
+          .join("\n")
+      )
       .then((str) => {
+        board.load(fen);
         console.log(str);
-        alert(str);
+        setTimeout(() => alert(str.split("\t").join(" ")), 1000);
       });
   }
 
   async find_moves(
     to_explore: { fen: string; percentage: number; moves: string[] }[],
-    found: { moves: string[]; percentage: number }[],
-    seen: { [fen: string]: number },
+    found: {
+      [fen: string]: { fen: string; moves: string[]; percentage: number };
+    },
     chess: ChessType
   ): Promise<{ moves: string[]; percentage: number }[]> {
-    if (to_explore.length === 0) return Promise.resolve(found);
+    if (to_explore.length === 0) return Promise.resolve(Object.values(found));
     const next_to_explore = [];
     for (let i = 0; i < to_explore.length; i++) {
       const exploring = to_explore[i];
@@ -41,7 +47,9 @@ class Memorize {
         exploring.moves,
         openings.get(exploring.fen)
       );
+      found[exploring.fen] = exploring;
       board.load(exploring.fen);
+      setTimeout(() => this.input.focus());
       await new Promise((resolve, reject) => {
         this.form.onsubmit = () => {
           // todo: I dont know button
@@ -51,6 +59,7 @@ class Memorize {
           if (next_fen === exploring.fen) {
             alert("invalid move");
           } else {
+            // todo print move stats
             this.input.hidden = true;
             lichess
               .get_moves(next_fen)
@@ -74,14 +83,12 @@ class Memorize {
                   )
                   .map((obj) =>
                     Object.assign(obj, {
-                      percentage: obj.percentage + (seen[obj.short_fen] || 0),
+                      percentage:
+                        obj.percentage +
+                        (found[obj.short_fen] || { percentage: 0 }).percentage,
                     })
                   )
-                  .map((obj) => {
-                    seen[obj.short_fen] = percentage;
-                    return obj;
-                  })
-                  .filter((obj) => obj.percentage > percentage)
+                  .filter((obj) => obj.percentage > 1 - percentage)
               )
               .then((append_to_explore) =>
                 next_to_explore.push(...append_to_explore)
@@ -93,7 +100,7 @@ class Memorize {
         this.input.hidden = false;
       });
     }
-    return this.find_moves(next_to_explore, found, seen, chess);
+    return this.find_moves(next_to_explore, found, chess);
   }
 
   get_fen(starting_fen: string, move: string, chess: ChessType): string {
