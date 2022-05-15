@@ -1,75 +1,79 @@
 body {
-  background-color: grey;
+    background-color: grey;
 }
 
 @media (min-width: 1000px) {
-  #board {
-    width: 350px;
-  }
+    #board {
+        width: 350px;
+    }
 }
 
 @media (max-width: 1000px) {
-  #board {
-    width: 600px;
-  }
-  button {
-    font-size: xx-large;
-  }
+    #board {
+        width: 600px;
+    }
+    button {
+        font-size: xx-large;
+    }
 }
 
 #main {
-  display: inline-flex;
-  flex-wrap: wrap;
+    display: inline-flex;
+    flex-wrap: wrap;
 }
 
 #board_wrapper {
-  flex-grow: 1;
+    flex-grow: 1;
 }
 
 #log_wrapper {
-  display: inline-block;
-  overflow:scroll;
-  flex-grow: 1;
+    display: inline-block;
+    overflow: scroll;
+    flex-grow: 1;
 }
 
 #log {
-  overflow: scroll;
-  font-family: "Courier New", Courier, monospace;
-  padding-bottom: 2em;
-  padding: 10px;
-  margin: 10px;
+    overflow: scroll;
+    font-family: "Courier New", Courier, monospace;
+    padding-bottom: 2em;
+    padding: 10px;
+    margin: 10px;
 }
 
 #opening {
-  display: flex;
+    display: flex;
 }
 
 .turn_pair {
-  display: flex;
+    display: flex;
 }
 
 .move {
-  width: 25em;
-  white-space: pre;
+    width: 25em;
+    white-space: pre;
 }
 
 .move_margin {
-  width: 10em;
+    width: 10em;
 }
 
 #all_instructions {
-  flex-grow: 1;
-  display: inline-block;
-  max-height: 250px;
-  overflow: scroll;
+    flex-grow: 1;
+    display: inline-block;
+    max-height: 250px;
+    overflow: scroll;
 }
 
 #sub_instructions {
-  padding: 10px;
-  margin: 10px;
-  border: 2px black solid;
+    padding: 10px;
+    margin: 10px;
+    border: 2px black solid;
 }
 
 .instructions {
-  padding-left: 15px;
+    padding-left: 15px;
+}
+
+#memorize_form {
+    display: inline;
 }
