@@ -3,13 +3,30 @@ const percentage = 0.01;
 class Memorize {
   run() {
     console.log("memorize", percentage);
-    this.helper()
-      .then((moves_arr) => moves_arr.map((moves) => moves).join("\n"))
+    const fen = board.fen();
+    this.helper([{ fen, percentage: 1, moves: [] }], [])
+      .then((objs) => {
+        const chess = new Chess();
+        return objs
+          .map((obj) => this.to_parts(obj, chess))
+          .map((parts) => parts.join("\t"))
+          .join("\n");
+      })
       .then(console.log);
   }
 
-  helper(): Promise<any[]> {
-    return Promise.resolve([]);
+  helper(
+    to_explore: { fen: string; percentage: number; moves: string[] }[],
+    found: { moves: string[]; percentage: number }[]
+  ): Promise<{ moves: string[]; percentage: number }[]> {
+    return Promise.resolve(found);
+  }
+
+  to_parts(
+    obj: { moves: string[]; percentage: number },
+    chess: any
+  ): [string, string] {
+    return ["term", "definition"];
   }
 }
 
