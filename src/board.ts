@@ -103,6 +103,10 @@ class Board {
       }
     }
   }
+
+  is_my_turn(): boolean {
+    return board.fen().split(" ")[1] === board.orientation().charAt(0);
+  }
 }
 
 const board = new Board();

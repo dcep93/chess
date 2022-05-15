@@ -32,7 +32,7 @@ class Brain {
 
   maybe_reply() {
     if (!controls.auto_reply.checked) return;
-    if (board.fen().split(" ")[1] === board.orientation().charAt(0)) return;
+    if (board.is_my_turn()) return;
     const choice = storage_w.get_novelty(this.get_hash());
     if (choice) return this.apply_reply(choice);
     return this.reply("");

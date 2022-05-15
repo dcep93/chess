@@ -16,7 +16,13 @@ class Memorize {
   run() {
     console.log("memorize", percentage);
     const fen = board.fen();
-    this.find_moves([{ fen, percentage: 1, moves: [] }], {})
+    Promise.resolve()
+      .then(() =>
+        board.is_my_turn()
+          ? [{ fen, percentage: 1, moves: [] }]
+          : this.get_opponent_moves({ fen, percentage: 1, moves: [] })
+      )
+      .then((to_explore) => this.find_moves(to_explore, {}))
       .then((objs) =>
         [
           `chess / ${openings.get(fen) || ""} / ${percentage * 100}% / ${
@@ -37,7 +43,6 @@ class Memorize {
       });
   }
 
-  // todo starts with opponent move
   async find_moves(
     to_explore: MemorizeMove[],
     found: {
@@ -73,23 +78,7 @@ class Memorize {
             found[short_fen] = moved;
             // todo print move stats
             this.input.hidden = true;
-            lichess
-              .get_moves(next_fen)
-              .then((moves) => ({
-                moves,
-                total: moves
-                  .map((move) => move.total)
-                  .reduce((a, b) => a + b, 0),
-              }))
-              .then((obj) =>
-                obj.moves
-                  .map((move) => ({
-                    percentage: (moved.percentage * move.total) / obj.total,
-                    moves: moved.moves.concat(move.move),
-                    fen: this.get_fen(next_fen, move.move),
-                  }))
-                  .filter((obj) => obj.percentage > 1 - percentage)
-              )
+            this.get_opponent_moves(moved)
               .then((next_to_explore) =>
                 this.find_moves(next_to_explore, found)
               )
@@ -101,6 +90,24 @@ class Memorize {
       });
     }
     return Promise.resolve(Object.values(found));
+  }
+
+  async get_opponent_moves(moved: MemorizeMove): Promise<MemorizeMove[]> {
+    return lichess
+      .get_moves(moved.fen)
+      .then((moves) => ({
+        moves,
+        total: moves.map((move) => move.total).reduce((a, b) => a + b, 0),
+      }))
+      .then((obj) =>
+        obj.moves
+          .map((move) => ({
+            percentage: (moved.percentage * move.total) / obj.total,
+            moves: moved.moves.concat(move.move),
+            fen: this.get_fen(moved.fen, move.move),
+          }))
+          .filter((obj) => obj.percentage > 1 - percentage)
+      );
   }
 
   get_fen(starting_fen: string, move: string): string {
