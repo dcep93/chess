@@ -67,6 +67,7 @@ class Memorize {
         exploring.move_choices
       );
       document.title = exploring.percentage.toFixed(2);
+      const move_choices = await lichess.get_moves();
       await new Promise((resolve) => {
         this.resolve = resolve;
       })
@@ -86,7 +87,7 @@ class Memorize {
             moves: exploring.moves.concat(my_move),
             fen: next_fen,
             from_drop,
-            move_choices: [],
+            move_choices,
           };
           found[short_fen] = moved;
           if (!from_drop)
@@ -150,7 +151,17 @@ class Memorize {
     obj: { moves: string[]; percentage: number; move_choices: Move[] }
   ): { prompt: string; answer: string; img_url: string } {
     const moves = obj.moves.slice();
-    const answer = moves.pop();
+    const answer_parts = [moves.pop()];
+    const chosen_move = obj.move_choices.find(
+      (m) => m.move === answer_parts[0]
+    );
+    answer_parts.push(
+      `(${
+        chosen_move === undefined
+          ? "unknown"
+          : log.move_to_text(chosen_move, obj.move_choices)
+      })`
+    );
 
     const parts = [];
     this.chess.load(fen);
@@ -188,7 +199,7 @@ class Memorize {
         .reverse()
         .map((p) => p.join(" "))
         .join("\n"),
-      answer,
+      answer: answer_parts.join("\n"),
       img_url,
     };
   }
