@@ -100,12 +100,13 @@ class Memorize {
       }))
       .then((obj) =>
         obj.moves
+          .sort((a, b) => b.total - a.total)
           .map((move) => ({
             percentage: (moved.percentage * move.total) / obj.total,
             moves: moved.moves.concat(move.move),
             fen: this.get_fen(moved.fen, move.move),
           }))
-          .filter((obj) => obj.percentage > minimum_probability)
+          .filter((obj, i) => i === 0 || obj.percentage > minimum_probability)
       );
   }
 
@@ -117,7 +118,6 @@ class Memorize {
 
   load_to_board(fen: string): string {
     const hash = location.hash;
-    // todo update log
     board.load(fen);
     location.hash = hash;
     return hash;
