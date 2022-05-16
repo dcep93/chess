@@ -1,4 +1,5 @@
-const percentage = 0.7;
+// todo define more rigorously
+const percentage = 0.9;
 
 type MemorizeMove = {
   fen: string;
@@ -84,6 +85,7 @@ class Memorize {
             );
         });
     }
+    // todo only return moves that didnt come from drop
     return Promise.resolve(Object.values(found));
   }
 
