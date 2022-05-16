@@ -1,6 +1,3 @@
-// todo user input probability
-const minimum_probability = 0.01;
-
 type MemorizeMove = {
   fen: string;
   percentage: number;
@@ -8,6 +5,10 @@ type MemorizeMove = {
 };
 
 class Memorize {
+  minimum_probability_input = document.getElementById(
+    "memorize_minimum_probabiltiy"
+  ) as HTMLInputElement;
+  button = document.getElementById("memorize") as HTMLButtonElement;
   chess = new Chess();
   resolve = null;
 
@@ -18,47 +19,54 @@ class Memorize {
   }
 
   run() {
+    const minimum_probability = parseFloat(
+      this.minimum_probability_input.value
+    );
     console.log("memorize", minimum_probability);
-    const button: HTMLButtonElement = document.getElementById(
-      "memorize"
-    ) as HTMLButtonElement;
-    button.disabled = true;
+    if (minimum_probability > 1)
+      return alert("minimum probabilty needs to be less than 1");
+    this.button.disabled = true;
     const fen = board.fen();
-    const obj = { fen, percentage: 1, moves: [] };
+    const obj = { fen, percentage: 1, moves: [], previous_move_choices: [] };
     Promise.resolve()
-      .then(() => (board.is_my_turn() ? [obj] : this.get_opponent_moves(obj)))
-      .then((to_explore) => this.find_moves(to_explore, {}))
-      .then((objs) =>
-        [
-          `chess / ${openings.get(fen) || ""} / ${
-            minimum_probability * 100
-          }% / ${objs.length}`,
-        ]
-          .concat(
-            ...objs
-              .map((obj) => this.to_parts(fen, obj))
-              .map((parts) =>
-                [parts.prompt, parts.answer, parts.img_url].join("\t")
-              )
-          )
-          .join("\n")
+      .then(() =>
+        board.is_my_turn()
+          ? [obj]
+          : this.get_opponent_moves(obj, minimum_probability)
       )
-      .then((str) => {
-        board.load(fen);
-        console.log(str);
-        setTimeout(() => alert(str.split("\t").join(" //// ")), 500);
-      });
+      .then((to_explore) =>
+        this.find_moves(to_explore, {}, minimum_probability)
+      )
+      .then((objs) => ({
+        title: [
+          "chess",
+          openings.get(fen) || "",
+          board.orientation(),
+          `${minimum_probability * 100}%`,
+          objs.length,
+        ].join(" / "),
+        data: objs.map((obj) => this.to_parts(fen, obj)),
+      }))
+      .then(console.log)
+      .then(() => board.load(fen));
   }
 
   async find_moves(
-    to_explore: MemorizeMove[],
+    to_explore: (MemorizeMove & {
+      previous_move_choices: Move[];
+    })[],
     found: {
       [fen: string]: MemorizeMove & { from_drop: boolean };
-    }
+    },
+    minimum_probability: number
   ): Promise<MemorizeMove[]> {
     for (let i = 0; i < to_explore.length; i++) {
       const exploring = to_explore[i];
-      const hash = this.load_to_board(exploring.fen);
+      const hash = this.load_to_board(
+        exploring.fen,
+        exploring.moves.slice().reverse()[0],
+        exploring.previous_move_choices
+      );
       document.title = exploring.percentage.toFixed(2);
       await new Promise((resolve) => {
         this.resolve = resolve;
@@ -79,12 +87,17 @@ class Memorize {
             moves: exploring.moves.concat(my_move),
             fen: next_fen,
             from_drop,
+            previous_move_choices: [],
           };
           found[short_fen] = moved;
           if (!from_drop)
-            return new Promise((resolve) => setTimeout(resolve, 1000));
-          return this.get_opponent_moves(moved).then((next_to_explore) =>
-            this.find_moves(next_to_explore, found)
+            return new Promise((resolve) => {
+              this.button.disabled = false;
+              this.button.onclick = resolve;
+            });
+          return this.get_opponent_moves(moved, minimum_probability).then(
+            (next_to_explore) =>
+              this.find_moves(next_to_explore, found, minimum_probability)
           );
         });
     }
@@ -93,7 +106,14 @@ class Memorize {
     );
   }
 
-  async get_opponent_moves(moved: MemorizeMove): Promise<MemorizeMove[]> {
+  async get_opponent_moves(
+    moved: MemorizeMove,
+    minimum_probability: number
+  ): Promise<
+    (MemorizeMove & {
+      previous_move_choices: Move[];
+    })[]
+  > {
     return lichess
       .get_moves(moved.fen)
       .then((moves) => ({
@@ -107,6 +127,7 @@ class Memorize {
             percentage: (moved.percentage * move.total) / obj.total,
             moves: moved.moves.concat(move.move),
             fen: this.get_fen(moved.fen, move.move),
+            previous_move_choices: obj.moves,
           }))
           .filter((obj, i) => i === 0 || obj.percentage > minimum_probability)
       );
@@ -118,10 +139,11 @@ class Memorize {
     return this.chess.fen();
   }
 
-  load_to_board(fen: string): string {
+  load_to_board(fen: string, move: string, moves: Move[]): string {
     const hash = location.hash;
     board.load(fen);
     location.hash = hash;
+    if (move !== undefined) log.log(fen, { move, moves });
     return hash;
   }
 
