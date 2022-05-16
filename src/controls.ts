@@ -70,7 +70,7 @@ class Controls {
     board.flip();
     board.reset();
     navigate.reset();
-    brain.maybe_reply();
+    brain.maybe_reply(false);
     this.auto_reply.checked = true;
   }
 

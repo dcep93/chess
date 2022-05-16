@@ -1,5 +1,4 @@
-// todo define more rigorously
-const percentage = 0.9;
+const minimum_probability = 0.01;
 
 type MemorizeMove = {
   fen: string;
@@ -10,7 +9,6 @@ type MemorizeMove = {
 class Memorize {
   chess = new Chess();
   resolve = null;
-  reject = null;
 
   callback(from_drop: boolean) {
     if (this.resolve === null) return false;
@@ -19,21 +17,21 @@ class Memorize {
   }
 
   run() {
-    console.log("memorize", percentage);
-    if (this.reject) this.reject();
+    console.log("memorize", minimum_probability);
+    const button: HTMLButtonElement = document.getElementById(
+      "memorize"
+    ) as HTMLButtonElement;
+    button.disabled = true;
     const fen = board.fen();
+    const obj = { fen, percentage: 1, moves: [] };
     Promise.resolve()
-      .then(() =>
-        board.is_my_turn()
-          ? [{ fen, percentage: 1, moves: [] }]
-          : this.get_opponent_moves({ fen, percentage: 1, moves: [] })
-      )
+      .then(() => (board.is_my_turn() ? [obj] : this.get_opponent_moves(obj)))
       .then((to_explore) => this.find_moves(to_explore, {}))
       .then((objs) =>
         [
-          `chess / ${openings.get(fen) || ""} / ${percentage * 100}% / ${
-            objs.length
-          }`,
+          `chess / ${openings.get(fen) || ""} / ${
+            minimum_probability * 100
+          }% / ${objs.length}`,
         ]
           .concat(
             ...objs
@@ -54,20 +52,20 @@ class Memorize {
   async find_moves(
     to_explore: MemorizeMove[],
     found: {
-      [fen: string]: MemorizeMove;
+      [fen: string]: MemorizeMove & { from_drop: boolean };
     }
   ): Promise<MemorizeMove[]> {
     for (let i = 0; i < to_explore.length; i++) {
       const exploring = to_explore[i];
       this.load_to_board(exploring.fen);
-      await new Promise((resolve, reject) => {
-        [this.resolve, this.reject] = [resolve, reject];
+      await new Promise((resolve) => {
+        this.resolve = resolve;
       })
         .then((from_drop) => {
-          [this.resolve, this.reject] = [null, null];
+          this.resolve = null;
           return from_drop;
         })
-        .then((from_drop) => {
+        .then((from_drop: boolean) => {
           const my_move = board.last_move();
           const next_fen = this.get_fen(exploring.fen, my_move);
           const short_fen = next_fen.split(" ")[0];
@@ -77,16 +75,19 @@ class Memorize {
               (found[short_fen] || { percentage: 0 }).percentage,
             moves: exploring.moves.concat(my_move),
             fen: next_fen,
+            from_drop,
           };
           found[short_fen] = moved;
-          if (from_drop)
-            return this.get_opponent_moves(moved).then((next_to_explore) =>
-              this.find_moves(next_to_explore, found)
-            );
+          if (!from_drop)
+            return new Promise((resolve) => setTimeout(resolve, 1000));
+          return this.get_opponent_moves(moved).then((next_to_explore) =>
+            this.find_moves(next_to_explore, found)
+          );
         });
     }
-    // todo only return moves that didnt come from drop
-    return Promise.resolve(Object.values(found));
+    return Promise.resolve(
+      Object.values(found).filter((obj) => !obj.from_drop)
+    );
   }
 
   async get_opponent_moves(moved: MemorizeMove): Promise<MemorizeMove[]> {
@@ -103,7 +104,7 @@ class Memorize {
             moves: moved.moves.concat(move.move),
             fen: this.get_fen(moved.fen, move.move),
           }))
-          .filter((obj) => obj.percentage > 1 - percentage)
+          .filter((obj) => obj.percentage > minimum_probability)
       );
   }
 
