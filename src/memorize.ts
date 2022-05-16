@@ -1,3 +1,4 @@
+// todo user input probability
 const minimum_probability = 0.01;
 
 type MemorizeMove = {
@@ -158,9 +159,10 @@ class Memorize {
 
     parts.unshift([obj.percentage.toFixed(2)]);
 
-    const img_url = `http://fen-to-image.com/image/${
-      iterate_fen.split(" ")[0]
-    }`;
+    var image_fen = iterate_fen.split(" ")[0];
+    if (!is_white) image_fen = image_fen.split("/").reverse().join("/");
+
+    const img_url = `http://fen-to-image.com/image/${image_fen}`;
     return {
       prompt: parts
         .reverse()
