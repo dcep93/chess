@@ -94,6 +94,8 @@ class Memorize {
             return new Promise((resolve) => {
               this.button.disabled = false;
               this.button.onclick = resolve;
+            }).then(() => {
+              this.button.disabled = true;
             });
           return this.get_opponent_moves(moved, minimum_probability).then(
             (next_to_explore) =>
