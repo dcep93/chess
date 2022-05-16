@@ -58,6 +58,7 @@ class Memorize {
     for (let i = 0; i < to_explore.length; i++) {
       const exploring = to_explore[i];
       const hash = this.load_to_board(exploring.fen);
+      document.title = exploring.percentage.toFixed(2);
       await new Promise((resolve) => {
         this.resolve = resolve;
       })
