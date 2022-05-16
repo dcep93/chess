@@ -57,12 +57,13 @@ class Memorize {
   ): Promise<MemorizeMove[]> {
     for (let i = 0; i < to_explore.length; i++) {
       const exploring = to_explore[i];
-      this.load_to_board(exploring.fen);
+      const hash = this.load_to_board(exploring.fen);
       await new Promise((resolve) => {
         this.resolve = resolve;
       })
         .then((from_drop) => {
           this.resolve = null;
+          location.hash = hash;
           return from_drop;
         })
         .then((from_drop: boolean) => {
@@ -114,11 +115,12 @@ class Memorize {
     return this.chess.fen();
   }
 
-  load_to_board(fen: string) {
+  load_to_board(fen: string): string {
     const hash = location.hash;
     // todo update log
     board.load(fen);
     location.hash = hash;
+    return hash;
   }
 
   to_parts(
