@@ -1,4 +1,4 @@
-const percentage = 0.9;
+const percentage = 0.7;
 
 type MemorizeMove = {
   fen: string;
@@ -9,6 +9,7 @@ type MemorizeMove = {
 class Memorize {
   chess = new Chess();
   resolve = null;
+  reject = null;
 
   callback(from_drop: boolean) {
     if (this.resolve === null) return false;
@@ -18,6 +19,7 @@ class Memorize {
 
   run() {
     console.log("memorize", percentage);
+    if (this.reject) this.reject();
     const fen = board.fen();
     Promise.resolve()
       .then(() =>
@@ -35,14 +37,16 @@ class Memorize {
           .concat(
             ...objs
               .map((obj) => this.to_parts(fen, obj))
-              .map((parts) => parts.join("\t"))
+              .map((parts) =>
+                [parts.prompt, parts.answer, parts.img_url].join("\t")
+              )
           )
           .join("\n")
       )
       .then((str) => {
         board.load(fen);
         console.log(str);
-        setTimeout(() => alert(str.split("\t").join(" //// ")), 1000);
+        setTimeout(() => alert(str.split("\t").join(" //// ")), 500);
       });
   }
 
@@ -54,17 +58,12 @@ class Memorize {
   ): Promise<MemorizeMove[]> {
     for (let i = 0; i < to_explore.length; i++) {
       const exploring = to_explore[i];
-      console.log(
-        exploring.percentage,
-        exploring.moves,
-        openings.get(exploring.fen)
-      );
       this.load_to_board(exploring.fen);
-      await new Promise((resolve) => {
-        this.resolve = resolve;
+      await new Promise((resolve, reject) => {
+        [this.resolve, this.reject] = [resolve, reject];
       })
         .then((from_drop) => {
-          this.resolve = null;
+          [this.resolve, this.reject] = [null, null];
           return from_drop;
         })
         .then((from_drop) => {
@@ -114,6 +113,7 @@ class Memorize {
 
   load_to_board(fen: string) {
     const hash = location.hash;
+    // todo update log
     board.load(fen);
     location.hash = hash;
   }
@@ -121,12 +121,48 @@ class Memorize {
   to_parts(
     fen: string,
     obj: { moves: string[]; percentage: number }
-  ): [string, string] {
-    // todo with opening and image
+  ): { prompt: string; answer: string; img_url: string } {
     const moves = obj.moves.slice();
-    const last_move = moves.pop();
-    moves.push(obj.percentage.toFixed(2));
-    return [moves.join(" "), last_move];
+    const answer = moves.pop();
+
+    const parts = [];
+    this.chess.load(fen);
+    var is_white = this.chess.turn() === "w";
+    if (!is_white) parts.unshift(["..."]);
+
+    var iterate_fen = fen;
+    var last_opening = { i: null, opening: "" };
+    moves.map((move, i) => {
+      iterate_fen = this.get_fen(iterate_fen, move);
+      const opening = openings.get(iterate_fen);
+      if (opening) {
+        last_opening = { i, opening };
+      }
+    });
+
+    for (let i = 0; i < moves.length; i++) {
+      if (is_white) parts.unshift([]);
+      parts[0].push(moves[i]);
+      if (last_opening.i === i) {
+        parts.unshift([last_opening.opening]);
+        if (is_white && i !== moves.length - 1) parts.unshift(["..."]);
+      }
+      is_white = !is_white;
+    }
+
+    parts.unshift([obj.percentage.toFixed(2)]);
+
+    const img_url = `http://fen-to-image.com/image/${
+      iterate_fen.split(" ")[0]
+    }`;
+    return {
+      prompt: parts
+        .reverse()
+        .map((p) => p.join(" "))
+        .join("\n"),
+      answer,
+      img_url,
+    };
   }
 }
 
