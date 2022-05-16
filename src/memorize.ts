@@ -2,6 +2,7 @@ type MemorizeMove = {
   fen: string;
   percentage: number;
   moves: string[];
+  move_choices: Move[];
 };
 
 class Memorize {
@@ -27,7 +28,7 @@ class Memorize {
       return alert("minimum probabilty needs to be less than 1");
     this.button.disabled = true;
     const fen = board.fen();
-    const obj = { fen, percentage: 1, moves: [], previous_move_choices: [] };
+    const obj = { fen, percentage: 1, moves: [], move_choices: [] };
     Promise.resolve()
       .then(() =>
         board.is_my_turn()
@@ -47,14 +48,12 @@ class Memorize {
         ].join(" / "),
         data: objs.map((obj) => this.to_parts(fen, obj)),
       }))
-      .then(console.log)
+      .then((obj) => console.log(JSON.stringify(obj)))
       .then(() => board.load(fen));
   }
 
   async find_moves(
-    to_explore: (MemorizeMove & {
-      previous_move_choices: Move[];
-    })[],
+    to_explore: MemorizeMove[],
     found: {
       [fen: string]: MemorizeMove & { from_drop: boolean };
     },
@@ -65,7 +64,7 @@ class Memorize {
       const hash = this.load_to_board(
         exploring.fen,
         exploring.moves.slice().reverse()[0],
-        exploring.previous_move_choices
+        exploring.move_choices
       );
       document.title = exploring.percentage.toFixed(2);
       await new Promise((resolve) => {
@@ -87,7 +86,7 @@ class Memorize {
             moves: exploring.moves.concat(my_move),
             fen: next_fen,
             from_drop,
-            previous_move_choices: [],
+            move_choices: [],
           };
           found[short_fen] = moved;
           if (!from_drop)
@@ -96,6 +95,7 @@ class Memorize {
               this.button.onclick = resolve;
             }).then(() => {
               this.button.disabled = true;
+              return null;
             });
           return this.get_opponent_moves(moved, minimum_probability).then(
             (next_to_explore) =>
@@ -111,11 +111,7 @@ class Memorize {
   async get_opponent_moves(
     moved: MemorizeMove,
     minimum_probability: number
-  ): Promise<
-    (MemorizeMove & {
-      previous_move_choices: Move[];
-    })[]
-  > {
+  ): Promise<MemorizeMove[]> {
     return lichess
       .get_moves(moved.fen)
       .then((moves) => ({
@@ -129,7 +125,7 @@ class Memorize {
             percentage: (moved.percentage * move.total) / obj.total,
             moves: moved.moves.concat(move.move),
             fen: this.get_fen(moved.fen, move.move),
-            previous_move_choices: obj.moves,
+            move_choices: obj.moves,
           }))
           .filter((obj, i) => i === 0 || obj.percentage > minimum_probability)
       );
@@ -151,7 +147,7 @@ class Memorize {
 
   to_parts(
     fen: string,
-    obj: { moves: string[]; percentage: number }
+    obj: { moves: string[]; percentage: number; move_choices: Move[] }
   ): { prompt: string; answer: string; img_url: string } {
     const moves = obj.moves.slice();
     const answer = moves.pop();
