@@ -4,6 +4,7 @@ type Move = {
   white: number;
   black: number;
   draws: number;
+  averageRating: number;
 };
 
 class Log {
@@ -22,12 +23,13 @@ class Log {
       draws: 0,
       white: 0,
       black: 0,
+      averageRating: 0,
       move,
     };
     if (chosen.total === 0) controls.auto_reply.checked = false;
     this.append_cell(
       player,
-      this.move_to_text(chosen, choice.moves),
+      this.move_to_text(chosen, choice.moves, false),
       turn,
       choice.moves
     );
@@ -81,12 +83,12 @@ class Log {
     };
     cell.title = moves
       .sort((a, b) => b.total - a.total)
-      .map((move) => this.move_to_text(move, moves))
+      .map((move) => this.move_to_text(move, moves, true))
       .join("\n");
     cell.innerHTML = text;
   }
 
-  move_to_text(move: Move, moves: Move[]): string {
+  move_to_text(move: Move, moves: Move[], for_title: boolean): string {
     const total = moves.map((i) => i.total).reduce((a, b) => a + b, 0);
     const pick = (100 * move.total) / total;
     const best_non =
@@ -103,6 +105,7 @@ class Log {
       ),
       this.to_chars(`d/${((100 * move.draws) / move.total).toFixed(1)}`, 7),
       this.to_chars(`t/${move.total}`, 8),
+      !for_title && this.to_chars(`elo/${move.averageRating}`, 9),
     ].join(" ");
   }
 

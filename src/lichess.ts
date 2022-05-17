@@ -36,17 +36,17 @@ class Lichess {
         move: m.san,
         ...m,
       }));
+      if (is_original)
+        setTimeout(() =>
+          moves.map((move) => {
+            this.chess.load(fen);
+            this.chess.move(move);
+            const new_fen = this.chess.fen();
+            lichess.get_moves(new_fen, ratings, attempt + 1, false);
+          })
+        );
       storage_w.set_lichess(url, moves);
     }
-    if (is_original)
-      setTimeout(() =>
-        moves.map((move) => {
-          this.chess.load(fen);
-          this.chess.move(move);
-          const new_fen = this.chess.fen();
-          lichess.get_moves(new_fen, ratings, attempt + 1, false);
-        })
-      );
     return Promise.resolve(moves);
   }
 }
