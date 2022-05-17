@@ -9,10 +9,6 @@ class Brain {
 
   async on_drop(hash: string, moves_promise: Promise<Move[]>) {
     const moves = await moves_promise;
-    document.body.style.backgroundColor =
-      moves.map((m) => m.total).reduce((a, b) => a + b, 0) > this.uncommon_total
-        ? "grey"
-        : "lightgrey";
     const move = board.last_move();
 
     const choice = { moves, move };
@@ -36,6 +32,16 @@ class Brain {
   }
 
   maybe_reply(from_drop: boolean) {
+    lichess
+      .get_moves()
+      .then(
+        (moves) =>
+          (document.body.style.backgroundColor =
+            moves.map((m) => m.total).reduce((a, b) => a + b, 0) >
+            this.uncommon_total
+              ? "grey"
+              : "lightgrey")
+      );
     if (memorize.callback(from_drop)) return;
     if (!controls.auto_reply.checked) return;
     if (board.is_my_turn()) return;
