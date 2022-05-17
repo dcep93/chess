@@ -45,7 +45,6 @@ class Lichess {
         const new_fen = this.chess.fen();
         lichess.get_moves(new_fen, ratings, attempt + 1, false);
       });
-    lichess.chess;
     return Promise.resolve(moves);
   }
 }

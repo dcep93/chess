@@ -19,6 +19,7 @@ class Memorize {
     return true;
   }
 
+  // todo undo button
   run() {
     const minimum_probability = parseFloat(
       this.minimum_probability_input.value
@@ -127,8 +128,13 @@ class Memorize {
             moves: moved.moves.concat(move.move),
             fen: this.get_fen(moved.fen, move.move),
             move_choices: obj.moves,
+            total: obj.total,
           }))
-          .filter((obj, i) => i === 0 || obj.percentage > minimum_probability)
+          .filter(
+            (obj, i) =>
+              (i === 0 && obj.total > brain.uncommon_total) ||
+              obj.percentage > minimum_probability
+          )
       );
   }
 
