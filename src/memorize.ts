@@ -165,7 +165,7 @@ class Memorize {
       `(${
         chosen_move === undefined
           ? "unknown"
-          : log.move_to_text(chosen_move, obj.move_choices, false)
+          : log.move_to_text(chosen_move, obj.move_choices)
       })`
     );
 
