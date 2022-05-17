@@ -106,7 +106,9 @@ class Log {
       this.to_chars(`d/${((100 * move.draws) / move.total).toFixed(1)}`, 7),
       this.to_chars(`t/${move.total}`, 8),
       !for_title && this.to_chars(`elo/${move.averageRating}`, 9),
-    ].join(" ");
+    ]
+      .filter(Boolean)
+      .join(" ");
   }
 
   to_chars(text: string, num: number): string {

@@ -22,10 +22,6 @@ body {
     flex-wrap: wrap;
 }
 
-#board_wrapper {
-    flex-grow: 1;
-}
-
 #log_wrapper {
     display: inline-block;
     overflow: scroll;
@@ -35,9 +31,8 @@ body {
 #log {
     overflow: scroll;
     font-family: "Courier New", Courier, monospace;
+    font-size: 0.95em;
     padding-bottom: 2em;
-    padding: 10px;
-    margin: 10px;
 }
 
 #opening {
