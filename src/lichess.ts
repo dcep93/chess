@@ -7,10 +7,12 @@ const ratings = {
 };
 
 class Lichess {
+  chess = new Chess();
   async get_moves(
     fen: string = null,
     ratings: [number, number] = [1800, 2200],
-    attempt: number = 1
+    attempt: number = 1,
+    is_original: boolean = true
   ): Promise<Move[]> {
     if (!fen) fen = board.fen();
     const url = `https://explorer.lichess.ovh/lichess?variant=standard&speeds=rapid,classical&ratings=${ratings.join(
@@ -36,6 +38,14 @@ class Lichess {
       }));
       storage_w.set_lichess(url, moves);
     }
+    if (is_original)
+      moves.map((move) => {
+        this.chess.load(fen);
+        this.chess.move(move);
+        const new_fen = this.chess.fen();
+        lichess.get_moves(new_fen, ratings, attempt + 1, false);
+      });
+    lichess.chess;
     return Promise.resolve(moves);
   }
 }
