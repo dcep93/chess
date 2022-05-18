@@ -32,16 +32,17 @@ class Brain {
   }
 
   maybe_reply(from_drop: boolean) {
-    lichess
-      .get_moves()
-      .then(
-        (moves) =>
-          (document.body.style.backgroundColor =
-            moves.map((m) => m.total).reduce((a, b) => a + b, 0) >
-            this.uncommon_total
-              ? "grey"
-              : "lightgrey")
-      );
+    if (!board.is_my_turn())
+      lichess
+        .get_moves()
+        .then(
+          (moves) =>
+            (document.body.style.backgroundColor =
+              moves.map((m) => m.total).reduce((a, b) => a + b, 0) >
+              this.uncommon_total
+                ? "grey"
+                : "lightgrey")
+        );
     if (memorize.callback(from_drop)) return;
     if (!controls.auto_reply.checked) return;
     if (board.is_my_turn()) return;
