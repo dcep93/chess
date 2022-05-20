@@ -68,13 +68,13 @@ class Log {
   }
 
   write_cell(
-    color: string,
+    player: string,
     row: HTMLDivElement,
     text: string,
     moves: Move[]
   ): void {
     // todo color if I blunder
-    const cell = row.getElementsByClassName(color)[0] as HTMLElement;
+    const cell = row.getElementsByClassName(player)[0] as HTMLElement;
     const orientation = board.orientation();
     const fen = board.fen();
     cell.onclick = () => {
@@ -83,12 +83,13 @@ class Log {
     };
     cell.title = moves
       .sort((a, b) => b.total - a.total)
-      .map((move) => this.move_to_text(color, move, moves))
+      .map((move) => this.move_to_text(player, move, moves))
       .join("\n");
     cell.innerHTML = text;
   }
 
-  move_to_text(color: string, move: Move, moves: Move[]): string {
+  move_to_text(player: string, move: Move, moves: Move[]): string {
+    const color = player == "w" ? "white" : "black";
     const total = moves.map((i) => i.total).reduce((a, b) => a + b, 0);
     const pick = (100 * move.total) / total;
     const best_non =
