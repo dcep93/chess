@@ -29,7 +29,7 @@ class Log {
     if (chosen.total === 0) controls.auto_reply.checked = false;
     this.append_cell(
       player,
-      this.move_to_text(chosen, choice.moves),
+      this.move_to_text(player, chosen, choice.moves),
       turn,
       choice.moves
     );
@@ -68,13 +68,13 @@ class Log {
   }
 
   write_cell(
-    className: string,
+    color: string,
     row: HTMLDivElement,
     text: string,
     moves: Move[]
   ): void {
     // todo color if I blunder
-    const cell = row.getElementsByClassName(className)[0] as HTMLElement;
+    const cell = row.getElementsByClassName(color)[0] as HTMLElement;
     const orientation = board.orientation();
     const fen = board.fen();
     cell.onclick = () => {
@@ -83,18 +83,20 @@ class Log {
     };
     cell.title = moves
       .sort((a, b) => b.total - a.total)
-      .map((move) => this.move_to_text(move, moves))
+      .map((move) => this.move_to_text(color, move, moves))
       .join("\n");
     cell.innerHTML = text;
   }
 
-  move_to_text(move: Move, moves: Move[]): string {
+  move_to_text(color: string, move: Move, moves: Move[]): string {
     const total = moves.map((i) => i.total).reduce((a, b) => a + b, 0);
     const pick = (100 * move.total) / total;
     const best_non =
-      (100 * move.total) /
-      (moves.filter((m) => m !== move).sort((a, b) => b.total - a.total)[0]
-        ?.total || 1);
+      (100 * brain.getScore(move, color)) /
+      (moves
+        .filter((m) => m !== move)
+        .map((m) => brain.getScore(m, color))
+        .sort((a, b) => b - a)[0] || 1);
     return [
       this.to_chars(move.move, 5),
       `s/${this.to_chars(Math.min(best_non, 420).toFixed(1), 5)}`,

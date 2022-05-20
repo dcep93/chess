@@ -58,12 +58,17 @@ class Brain {
       if (moves.length === 0) return;
       const color = board.orientation();
       const move = moves
-        .map((m) => ({ move: m.move, score: m[color] / Math.sqrt(m.total) }))
+        .map((m) => ({ move: m.move, score: this.getScore(m, color) }))
         .sort((a, b) => b.score - a.score)[0].move;
       choice = { move, moves };
     }
     this.apply_reply(choice);
     this.maybe_reply(false);
+  }
+
+  getScore(m: Move, color: string): number {
+    const p = m[color] / m.total;
+    return (p - 0.5) * Math.sqrt(m.total);
   }
 
   async reply(different: string): Promise<void> {
