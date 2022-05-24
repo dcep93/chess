@@ -14,6 +14,7 @@ Promise.all(
             "openings.ts",
             "init.ts",
             "best_openings.ts",
+            "my_best_openings.ts",
         ].map((fileName) =>
             fetch(`./src/${fileName}`)
             .then((response) => response.text())
