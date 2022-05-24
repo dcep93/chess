@@ -1,5 +1,6 @@
 class MyBestOpenings {
   MIN_PROBABILITY = 0.001;
+  MAX_MS_OLD = 365 * 24 * 60 * 60 * 1000;
   rval: any;
   run(userName: string) {
     return Promise.all(
@@ -23,13 +24,13 @@ class MyBestOpenings {
       .then(({ positions, length }) =>
         Object.entries(positions)
           .map(([fen, obj]) => ({
-            fen,
+            openings: this.countOpenings(obj.openings),
             score: this.getScore(obj, length),
             ...obj,
-            openings: this.countOpenings(obj.openings),
+            fen,
           }))
           .filter((obj) => !isNaN(obj.score))
-          .sort((a, b) => b.score - a.score)
+          .sort((a, b) => a.score - b.score)
       );
   }
 
@@ -39,11 +40,14 @@ class MyBestOpenings {
   ): { moves: string[]; did_win: boolean }[] {
     const games = [];
     // @ts-ignore
-    const game: { moves: string[]; did_win: boolean } = {};
+    const game: { ms_old: number; moves: string[]; did_win: boolean } = {};
+    const now = Date.now();
     text.split(/\n/g).forEach((line) => {
       if (line.trim().length === 0) return;
       if (line.startsWith("[Termination")) {
         game.did_win = line.includes(userName);
+      } else if (line.startsWith("[UTCDate")) {
+        game.ms_old = Date.parse(line.split('"')[1]) - now;
       } else if (line.startsWith("1.")) {
         game.moves = line
           .split(/ +/g)
@@ -53,7 +57,7 @@ class MyBestOpenings {
       }
     });
 
-    return games;
+    return games.filter((game) => game.ms_old < this.MAX_MS_OLD);
   }
 
   gamesToPositions(games: { moves: string[]; did_win: boolean }[]): {
