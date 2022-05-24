@@ -1,6 +1,8 @@
 class MyBestOpenings {
   MIN_PROBABILITY = 0.001;
   MAX_MS_OLD = 365 * 24 * 60 * 60 * 1000;
+  NUM_MOVES_PER_GAME = 10;
+  NUM_POSITIONS = 10;
   rval: any;
   run(userName: string) {
     return Promise.all(
@@ -25,12 +27,16 @@ class MyBestOpenings {
         Object.entries(positions)
           .map(([fen, obj]) => ({
             openings: this.countOpenings(obj.openings),
+            p: obj.wins / obj.count,
             score: this.getScore(obj, length),
-            ...obj,
+            count: obj.count,
+            wins: obj.wins,
+            moves: obj.moves,
             fen,
           }))
           .filter((obj) => !isNaN(obj.score))
           .sort((a, b) => a.score - b.score)
+          .slice(0, this.NUM_POSITIONS)
       );
   }
 
@@ -47,7 +53,7 @@ class MyBestOpenings {
       if (line.startsWith("[Termination")) {
         game.did_win = line.includes(userName);
       } else if (line.startsWith("[UTCDate")) {
-        game.ms_old = Date.parse(line.split('"')[1]) - now;
+        game.ms_old = now - Date.parse(line.split('"')[1]);
       } else if (line.startsWith("1.")) {
         game.moves = line
           .split(/ +/g)
@@ -64,8 +70,8 @@ class MyBestOpenings {
     [fen: string]: {
       count: number;
       wins: number;
-      losses: number;
       openings: string[];
+      moves: string[];
     };
   } {
     const chess = new Chess();
@@ -73,18 +79,26 @@ class MyBestOpenings {
     games.forEach((game) => {
       chess.reset();
       let opening = "default";
-      game.moves.concat("").forEach((move) => {
-        const fen = chess.fen();
-        if (positions[fen] === undefined)
-          positions[fen] = { count: 0, wins: 0, losses: 0, openings: [] };
-        positions[fen][game.did_win ? "wins" : "losses"]++;
-        positions[fen].count++;
-        const o = openings.get(fen);
-        if (o) opening = o;
-        positions[fen].openings.push(opening);
-        if (move === "") return;
-        chess.move(move);
-      });
+      game.moves
+        .concat("")
+        .slice(0, this.NUM_MOVES_PER_GAME)
+        .forEach((move, i) => {
+          const fen = chess.fen();
+          if (positions[fen] === undefined)
+            positions[fen] = {
+              count: 0,
+              wins: 0,
+              openings: [],
+              moves: game.moves.slice(0, i),
+            };
+          if (game.did_win) positions[fen].wins++;
+          positions[fen].count++;
+          const o = openings.get(fen);
+          if (o) opening = o;
+          positions[fen].openings.push(opening);
+          if (move === "") return;
+          chess.move(move);
+        });
     });
     return positions;
   }
@@ -93,7 +107,6 @@ class MyBestOpenings {
     position: {
       count: number;
       wins: number;
-      losses: number;
       openings: string[];
     },
     length: number
