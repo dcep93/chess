@@ -16,6 +16,7 @@ class MyBestOpenings {
           .flatMap((i) => i)
           .filter((obj) => !isNaN(obj.score))
           .sort((a, b) => a.score - b.score)
+          .map((obj) => ({ score: this.num(obj.score), ...obj }))
           .slice(0, this.NUM_POSITIONS)
       )
       .then((rval) => {
@@ -36,9 +37,9 @@ class MyBestOpenings {
       }))
       .then(({ positions, length }) =>
         Object.entries(positions).map(([fen, obj]) => ({
-          is_white,
-          openings: this.countOpenings(obj.openings),
-          p: obj.wins / obj.count,
+          c: is_white ? "w" : "b",
+          o: this.mostCommon(obj.openings),
+          p: this.num(obj.wins / obj.count),
           score: this.getScore(obj, length),
           count: obj.count,
           wins: obj.wins,
@@ -124,13 +125,19 @@ class MyBestOpenings {
     return (p - 0.5) * Math.sqrt(position.count);
   }
 
-  countOpenings(os: string[]): { [o: string]: number } {
-    const od = {};
+  mostCommon(os: string[]): string {
+    const od: { [key: string]: number } = {};
     os.forEach((o) => {
       if (od[o] === undefined) od[o] = 0;
       od[o]++;
     });
-    return od;
+    return Object.entries(od)
+      .map(([key, val]) => ({ key, val }))
+      .sort((a, b) => b.val - a.val)[0].key;
+  }
+
+  num(n: number): number {
+    return parseFloat(n.toFixed(2));
   }
 }
 
