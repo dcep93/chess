@@ -7,7 +7,7 @@ class MyBestOpenings {
   NUM_MOVES_PER_GAME = 10;
   NUM_POSITIONS = 25;
   rval: any;
-  run(userName: string) {
+  run(userName: string, reverse: boolean) {
     return Promise.all(
       [true, false].map((is_white) => this.runHelper(userName, is_white))
     )
@@ -15,6 +15,9 @@ class MyBestOpenings {
         objs
           .flatMap((i) => i)
           .filter((obj) => !isNaN(obj.score))
+          .map((obj) =>
+            Object.assign(obj, { score: obj.score * (reverse ? -1 : 1) })
+          )
           .sort((a, b) => a.score - b.score)
           .map((obj) => Object.assign(obj, { score: this.num(obj.score) }))
           .slice(0, this.NUM_POSITIONS)
