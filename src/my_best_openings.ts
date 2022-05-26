@@ -1,19 +1,30 @@
+// https://openingtree.com/
+// my_best_openings.run("dcep93")
+
 class MyBestOpenings {
   MIN_PROBABILITY = 0.001;
   MAX_MS_OLD = 365 * 24 * 60 * 60 * 1000;
   NUM_MOVES_PER_GAME = 10;
-  NUM_POSITIONS = 10;
+  NUM_POSITIONS = 25;
   rval: any;
   run(userName: string) {
     return Promise.all(
       [true, false].map((is_white) => this.runHelper(userName, is_white))
-    ).then((rval) => {
-      this.rval = rval;
-      console.log(rval);
-    });
+    )
+      .then((objs) =>
+        objs
+          .flatMap((i) => i)
+          .filter((obj) => !isNaN(obj.score))
+          .sort((a, b) => a.score - b.score)
+          .slice(0, this.NUM_POSITIONS)
+      )
+      .then((rval) => {
+        this.rval = rval;
+        console.log(rval);
+      });
   }
 
-  runHelper(userName: string, is_white: boolean): Promise<any> {
+  runHelper(userName: string, is_white: boolean): Promise<{ score: number }[]> {
     const color = is_white ? "white" : "black";
     return fetch(`./src/pgns/${userName}-${color}.pgn`)
       .then((resp) => resp.text())
@@ -24,19 +35,16 @@ class MyBestOpenings {
         length: Object.keys(positions).length,
       }))
       .then(({ positions, length }) =>
-        Object.entries(positions)
-          .map(([fen, obj]) => ({
-            openings: this.countOpenings(obj.openings),
-            p: obj.wins / obj.count,
-            score: this.getScore(obj, length),
-            count: obj.count,
-            wins: obj.wins,
-            moves: obj.moves,
-            fen,
-          }))
-          .filter((obj) => !isNaN(obj.score))
-          .sort((a, b) => a.score - b.score)
-          .slice(0, this.NUM_POSITIONS)
+        Object.entries(positions).map(([fen, obj]) => ({
+          is_white,
+          openings: this.countOpenings(obj.openings),
+          p: obj.wins / obj.count,
+          score: this.getScore(obj, length),
+          count: obj.count,
+          wins: obj.wins,
+          moves: obj.moves,
+          fen,
+        }))
       );
   }
 
