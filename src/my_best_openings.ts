@@ -19,6 +19,10 @@ class MyBestOpenings {
             Object.assign(obj, { score: obj.score * (reverse ? -1 : 1) })
           )
           .sort((a, b) => a.score - b.score)
+      )
+      .then((objs) => this.filterFirst(objs, (obj) => obj.o))
+      .then((objs) =>
+        objs
           .map((obj) => Object.assign(obj, { score: this.num(obj.score) }))
           .slice(0, this.NUM_POSITIONS)
       )
@@ -28,7 +32,10 @@ class MyBestOpenings {
       });
   }
 
-  runHelper(userName: string, is_white: boolean): Promise<{ score: number }[]> {
+  runHelper(
+    userName: string,
+    is_white: boolean
+  ): Promise<{ score: number; o: string }[]> {
     const color = is_white ? "white" : "black";
     return fetch(`./src/pgns/${userName}-${color}.pgn`)
       .then((resp) => resp.text())
@@ -141,6 +148,16 @@ class MyBestOpenings {
 
   num(n: number): number {
     return parseFloat(n.toFixed(2));
+  }
+
+  filterFirst<T>(objs: T[], f: (T) => any): T[] {
+    const keys = new Set();
+    return objs.filter((obj) => {
+      const key = f(obj);
+      if (keys.has(key)) return false;
+      keys.add(key);
+      return true;
+    });
   }
 }
 
