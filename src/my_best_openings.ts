@@ -16,7 +16,7 @@ class MyBestOpenings {
           .flatMap((i) => i)
           .filter((obj) => !isNaN(obj.score))
           .sort((a, b) => a.score - b.score)
-          .map((obj) => ({ score: this.num(obj.score), ...obj }))
+          .map((obj) => Object.assign(obj, { score: this.num(obj.score) }))
           .slice(0, this.NUM_POSITIONS)
       )
       .then((rval) => {
