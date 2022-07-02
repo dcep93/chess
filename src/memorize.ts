@@ -161,18 +161,23 @@ class Memorize {
     const chosen_move = obj.move_choices.find(
       (m) => m.move === answer_parts[0]
     );
-    answer_parts.push(
-      `(${
-        chosen_move === undefined
-          ? "unknown"
-          : log.move_to_text(chosen_move, obj.move_choices)
-      })`
-    );
 
     const parts = [];
     this.chess.load(fen);
     var is_white = this.chess.turn() === "w";
     if (!is_white) parts.unshift(["..."]);
+
+    answer_parts.push(
+      `(${
+        chosen_move === undefined
+          ? "unknown"
+          : log.move_to_text(
+              is_white ? "white" : "black",
+              chosen_move,
+              obj.move_choices
+            )
+      })`
+    );
 
     var iterate_fen = fen;
     var last_opening = { i: null, opening: "" };

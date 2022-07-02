@@ -5,6 +5,12 @@ class Navigate {
   reset() {
     this.index = 0;
     this.history = [{ fen: board.fen(), move: "", moves: [] }];
+    log.clear();
+  }
+
+  return_to_first() {
+    board.load(this.history[0].fen);
+    this.reset();
   }
 
   record(choice: { move: string; moves: Move[] }) {
