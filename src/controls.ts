@@ -27,16 +27,21 @@ class Controls {
     );
     this.clear_novelty.onclick = this.queue(this.do_clear_novelty.bind(this));
     document.body.onkeydown = (ev) =>
-      ({
-        ["\\"]: navigate.return_to_first.bind(navigate),
-        Enter: this.different_move.bind(this),
-        ArrowLeft: navigate.undo.bind(navigate),
-        ArrowRight: navigate.redo.bind(navigate),
-        ArrowUp: brain.best.bind(brain),
-        ArrowDown: this.new_game.bind(this),
-        Space: this.do_clear_novelty.bind(this),
-        Shift: () => (this.is_shift = true),
-      }[ev.key]?.());
+      Promise.resolve(ev.key)
+        .then(
+          (key) =>
+            ({
+              "\\": navigate.return_to_first.bind(navigate),
+              Enter: this.different_move.bind(this),
+              ArrowLeft: navigate.undo.bind(navigate),
+              ArrowRight: navigate.redo.bind(navigate),
+              ArrowUp: brain.best.bind(brain),
+              ArrowDown: this.new_game.bind(this),
+              Space: this.do_clear_novelty.bind(this),
+              Shift: () => (this.is_shift = true),
+            }[key])
+        )
+        .then((f) => f && f());
     document.body.onkeyup = (ev) =>
       ev.key === "Shift" && (this.is_shift = false);
     this.set_clear_novelty();
