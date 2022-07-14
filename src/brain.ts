@@ -86,13 +86,13 @@ class Brain {
     different: string
   ): Promise<{ move: string; moves: Move[] }> {
     const moves = await lichess.get_moves();
-    const weights = moves.map(
-      (m) => m.total / (m.move === different ? 100 : 1)
-    );
+    const sub_moves = moves.filter((m) => m.move !== different);
+    if (sub_moves.length === 0) return { move: different, moves };
+    const weights = sub_moves.map((m) => Math.pow(m.total, 2));
     var choice = Math.random() * weights.reduce((a, b) => a + b, 0);
     for (let i = 0; i < weights.length; i++) {
       choice -= weights[i];
-      if (choice <= 0) return { move: moves[i].move, moves };
+      if (choice <= 0) return { move: sub_moves[i].move, moves };
     }
     throw Error("pick_reply");
   }
