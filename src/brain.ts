@@ -56,7 +56,7 @@ class Brain {
     if (!choice) {
       const moves = await lichess.get_moves();
       if (moves.length === 0) return;
-      const color = board.orientation();
+      const color = { w: "white", b: "black" }[board.chess.turn()];
       const move = moves
         .map((m) => ({ move: m.move, score: this.getScore(m, color) }))
         .sort((a, b) => b.score - a.score)[0].move;
