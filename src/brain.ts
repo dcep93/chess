@@ -68,7 +68,7 @@ class Brain {
 
   getScore(m: Move, color: string): number {
     const p = m[color] / (100 + m.black + m.white - m[color]);
-    return Math.pow(p, 3) * Math.pow(m.total, 0.69);
+    return Math.pow(p, 3) * Math.pow(m.total, 0.42);
   }
 
   async reply(different: string): Promise<void> {
