@@ -3,6 +3,7 @@ type MemorizeMove = {
   percentage: number;
   moves: string[];
   move_choices: Move[];
+  previous_fen?: string;
 };
 
 class Memorize {
@@ -19,7 +20,6 @@ class Memorize {
     return true;
   }
 
-  // todo undo button
   run() {
     const minimum_probability = parseFloat(
       this.minimum_probability_input.value
@@ -71,6 +71,10 @@ class Memorize {
       const move_choices = await lichess.get_moves();
       await new Promise((resolve) => {
         this.resolve = resolve;
+        this.button.onclick = () => {
+          board.load(exploring.previous_fen);
+          brain.best();
+        };
       })
         .then((from_drop) => {
           this.resolve = null;
@@ -96,7 +100,7 @@ class Memorize {
               this.button.disabled = false;
               this.button.onclick = resolve;
             }).then(() => {
-              this.button.disabled = true;
+              // this.button.disabled = true;
               return null;
             });
           return this.get_opponent_moves(moved, minimum_probability).then(
@@ -127,6 +131,7 @@ class Memorize {
             percentage: (moved.percentage * move.total) / obj.total,
             moves: moved.moves.concat(move.move),
             fen: this.get_fen(moved.fen, move.move),
+            previous_fen: moved.previous_fen,
             move_choices: obj.moves,
             total: obj.total,
           }))
