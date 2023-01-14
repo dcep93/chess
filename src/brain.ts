@@ -43,7 +43,7 @@ class Brain {
                 ? "grey"
                 : "lightgrey")
         );
-    if (memorize.callback(from_drop)) return;
+    if (memorize.on_brain_maybe_reply(from_drop)) return;
     if (!controls.auto_reply.checked) return;
     if (board.is_my_turn()) return;
     const choice = storage_w.get_novelty(this.get_hash());

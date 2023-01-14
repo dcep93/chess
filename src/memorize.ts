@@ -13,7 +13,7 @@ class Memorize {
   chess = new Chess();
   resolve = null;
 
-  callback(from_drop: boolean) {
+  on_brain_maybe_reply(from_drop: boolean) {
     if (this.resolve === null) return false;
     this.resolve(from_drop);
     return true;
