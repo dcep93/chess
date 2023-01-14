@@ -29,7 +29,7 @@ class Memorize {
       return alert("minimum probabilty needs to be less than 1");
     this.button.disabled = true;
     const fen = board.fen();
-    const obj = { fen, percentage: 100, moves: [], move_choices: [] };
+    const obj = { fen, percentage: 1, moves: [], move_choices: [] };
     Promise.resolve()
       .then(() =>
         board.is_my_turn()
@@ -42,7 +42,7 @@ class Memorize {
       .then((objs) => ({
         title: [
           "chess",
-          openings.get(fen) || "",
+          openings.get(fen) || "unknown_opening",
           board.orientation(),
           `${minimum_probability * 100}%`,
           objs.length,
@@ -199,7 +199,7 @@ class Memorize {
       is_white = !is_white;
     }
 
-    parts.unshift([`${obj.percentage.toFixed(2)}%`]);
+    parts.unshift([`${(100 * obj.percentage).toFixed(2)}%`]);
 
     var image_fen = iterate_fen.split(" ")[0];
     if (!is_white) image_fen = image_fen.split("/").reverse().join("/");
