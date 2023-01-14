@@ -67,7 +67,7 @@ class Memorize {
         exploring.moves.slice().reverse()[0],
         exploring.move_choices
       );
-      document.title = exploring.percentage.toFixed(2);
+      document.title = `${exploring.percentage.toFixed(2)}%`;
       const move_choices = await lichess.get_moves();
       await new Promise((resolve) => {
         this.resolve = resolve;
