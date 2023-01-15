@@ -3,13 +3,15 @@ type MemorizeMove = {
   percentage: number;
   moves: string[];
   move_choices: Move[];
-  previous_fen?: string;
+  previous_fen: string;
 };
 
+// 0.1 -> 2 moves, 500
+// 0.01 -> 4 moves -> 1500
+// 0.001 -> 6 moves -> 2000
+
 class Memorize {
-  minimum_probability_input = document.getElementById(
-    "memorize_minimum_probabiltiy"
-  ) as HTMLInputElement;
+  elo_input = document.getElementById("memorize_elo_input") as HTMLInputElement;
   button = document.getElementById("memorize") as HTMLButtonElement;
   chess = new Chess();
   resolve = null;
@@ -20,31 +22,38 @@ class Memorize {
     return true;
   }
 
+  elo_to_percentage(elo: number) {
+    const num_moves = 4 + (elo - 1500) / 250;
+    return 100 / Math.pow(3, num_moves);
+  }
+
   run() {
-    const minimum_probability = parseFloat(
-      this.minimum_probability_input.value
+    const minimum_percentage = this.elo_to_percentage(
+      parseFloat(this.elo_input.value)
     );
-    console.log("memorize", minimum_probability);
-    if (minimum_probability > 1)
-      return alert("minimum probabilty needs to be less than 1");
-    this.button.disabled = true;
+    console.log("memorize", "minimum_percentage", minimum_percentage);
+    // this.button.disabled = true;
     const fen = board.fen();
-    const obj = { fen, percentage: 100, moves: [], move_choices: [] };
+    const obj = {
+      fen,
+      previous_fen: "",
+      percentage: 100,
+      moves: [],
+      move_choices: [],
+    };
     Promise.resolve()
       .then(() =>
         board.is_my_turn()
           ? [obj]
-          : this.get_opponent_moves(obj, minimum_probability)
+          : this.get_opponent_moves(obj, minimum_percentage)
       )
-      .then((to_explore) =>
-        this.find_moves(to_explore, {}, minimum_probability)
-      )
+      .then((to_explore) => this.find_moves(to_explore, {}, minimum_percentage))
       .then((objs) => ({
         title: [
           "chess",
           openings.get(fen) || "unknown_opening",
           board.orientation(),
-          `${minimum_probability * 100}%`,
+          `${minimum_percentage}%`,
           objs.length,
         ].join(" / "),
         data: objs.map((obj) => this.to_parts(fen, obj)),
@@ -58,7 +67,7 @@ class Memorize {
     found: {
       [fen: string]: MemorizeMove & { from_drop: boolean };
     },
-    minimum_probability: number
+    minimum_percentage: number
   ): Promise<MemorizeMove[]> {
     for (let i = 0; i < to_explore.length; i++) {
       const exploring = to_explore[i];
@@ -71,6 +80,7 @@ class Memorize {
       const move_choices = await lichess.get_moves();
       await new Promise((resolve) => {
         this.resolve = resolve;
+        console.log(exploring);
         this.button.onclick = () => {
           board.load(exploring.previous_fen);
           brain.best();
@@ -91,21 +101,22 @@ class Memorize {
               (found[short_fen] || { percentage: 0 }).percentage,
             moves: exploring.moves.concat(my_move),
             fen: next_fen,
+            previous_fen: exploring.fen,
             from_drop,
             move_choices,
           };
           found[short_fen] = moved;
           if (!from_drop)
             return new Promise((resolve) => {
-              this.button.disabled = false;
+              // this.button.disabled = false;
               this.button.onclick = resolve;
             }).then(() => {
               // this.button.disabled = true;
               return null;
             });
-          return this.get_opponent_moves(moved, minimum_probability).then(
+          return this.get_opponent_moves(moved, minimum_percentage).then(
             (next_to_explore) =>
-              this.find_moves(next_to_explore, found, minimum_probability)
+              this.find_moves(next_to_explore, found, minimum_percentage)
           );
         });
     }
@@ -116,7 +127,7 @@ class Memorize {
 
   async get_opponent_moves(
     moved: MemorizeMove,
-    minimum_probability: number
+    minimum_percentage: number
   ): Promise<MemorizeMove[]> {
     return lichess
       .get_moves(moved.fen)
@@ -138,7 +149,7 @@ class Memorize {
           .filter(
             (obj, i) =>
               (i === 0 && obj.total > brain.uncommon_total) ||
-              obj.percentage > minimum_probability * 100
+              obj.percentage > minimum_percentage
           )
       );
   }
