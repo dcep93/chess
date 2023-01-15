@@ -71,16 +71,17 @@ class Memorize {
   ): Promise<MemorizeMove[]> {
     for (let i = 0; i < to_explore.length; i++) {
       const exploring = to_explore[i];
-      const hash = this.load_to_board(
+      this.load_to_board(
         exploring.fen,
         exploring.moves.slice().reverse()[0],
         exploring.move_choices
       );
-      document.title = `${exploring.percentage.toFixed(2)}%`;
+      document.title = `${exploring.percentage.toFixed(
+        2
+      )}% / ${minimum_percentage.toFixed(2)}%`;
       const move_choices = await lichess.get_moves();
       await new Promise((resolve) => {
         this.resolve = resolve;
-        console.log(exploring);
         this.button.onclick = () => {
           board.load(exploring.previous_fen);
           brain.best();
@@ -88,7 +89,6 @@ class Memorize {
       })
         .then((from_drop) => {
           this.resolve = null;
-          location.hash = hash;
           return from_drop;
         })
         .then((from_drop: boolean) => {
@@ -160,12 +160,9 @@ class Memorize {
     return this.chess.fen();
   }
 
-  load_to_board(fen: string, move: string, moves: Move[]): string {
-    const hash = location.hash;
+  load_to_board(fen: string, move: string, moves: Move[]) {
     board.load(fen);
-    location.hash = hash;
     if (move !== undefined) log.log(fen, { move, moves });
-    return hash;
   }
 
   to_parts(

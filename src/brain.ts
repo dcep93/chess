@@ -67,7 +67,7 @@ class Brain {
   }
 
   getScore(m: Move, color: string): number {
-    const p = m[color] / (100 + m.black + m.white - m[color]);
+    const p = m[color] / (10 + m.black + m.white - m[color]);
     return Math.pow(p, 3) * Math.pow(m.total, 0.42);
   }
 
