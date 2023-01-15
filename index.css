@@ -30,6 +30,7 @@ body {
     display: inline-block;
     overflow: scroll;
     flex-grow: 1;
+    height: 100%;
 }
 
 #log {
