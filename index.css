@@ -23,6 +23,7 @@ body {
 #main {
     display: inline-flex;
     flex-wrap: wrap;
+    height: 100%;
 }
 
 #log_wrapper {
