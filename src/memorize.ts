@@ -161,6 +161,7 @@ class Memorize {
   }
 
   load_to_board(fen: string, move: string, moves: Move[]) {
+    log.clear();
     board.load(fen);
     if (move !== undefined) log.log(fen, { move, moves });
   }
