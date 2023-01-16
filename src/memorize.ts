@@ -114,10 +114,16 @@ class Memorize {
               // this.button.disabled = true;
               return null;
             });
-          return this.get_opponent_moves(moved, minimum_percentage).then(
-            (next_to_explore) =>
+          return this.get_opponent_moves(moved, minimum_percentage)
+            .then((next_to_explore) => {
+              if (next_to_explore.length === 0) {
+                console.log(this.to_parts(short_fen, moved));
+              }
+              return next_to_explore;
+            })
+            .then((next_to_explore) =>
               this.find_moves(next_to_explore, found, minimum_percentage)
-          );
+            );
         });
     }
     return Promise.resolve(
