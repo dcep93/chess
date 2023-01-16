@@ -117,8 +117,12 @@ class Memorize {
           return this.get_opponent_moves(moved, minimum_percentage)
             .then((next_to_explore) => {
               if (next_to_explore.length === 0) {
-                console.log(this.answer_parens(short_fen, moved));
-                log.clear();
+                console.log(
+                  this.answer_parens(short_fen, moved),
+                  "found/",
+                  Object.values(found).filter((obj) => !obj.from_drop).length
+                );
+                log.clear_except_2();
               }
               return next_to_explore;
             })

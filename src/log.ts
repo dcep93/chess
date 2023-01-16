@@ -48,6 +48,12 @@ class Log {
     this.logs = [];
   }
 
+  clear_except_2(): void {
+    this.logs.splice(2).forEach((l) => this.div.removeChild(l));
+    this.append_cell("w", "", 0, []);
+    this.append_cell("w", "", 0, []);
+  }
+
   append_cell(player: string, text: string, turn: number, moves: Move[]): void {
     var row: HTMLDivElement;
     if (player === "w") {
@@ -78,6 +84,7 @@ class Log {
     const orientation = board.orientation();
     const fen = board.fen();
     cell.onclick = () => {
+      if (memorize.resolve !== null) return window.open(`#${brain.get_hash()}`);
       board.load(fen);
       if (orientation !== board.orientation()) board.flip();
     };
