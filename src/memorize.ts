@@ -117,7 +117,8 @@ class Memorize {
           return this.get_opponent_moves(moved, minimum_percentage)
             .then((next_to_explore) => {
               if (next_to_explore.length === 0) {
-                console.log(this.to_parts(short_fen, moved));
+                console.log(this.answer_parens(short_fen, moved));
+                log.clear();
               }
               return next_to_explore;
             })
@@ -167,9 +168,30 @@ class Memorize {
   }
 
   load_to_board(fen: string, move: string, moves: Move[]) {
-    log.clear();
     board.load(fen);
     if (move !== undefined) log.log(fen, { move, moves });
+  }
+
+  answer_parens(
+    fen: string,
+    obj: { moves: string[]; percentage: number; move_choices: Move[] }
+  ): string {
+    const moves = obj.moves.slice();
+    const answer_parts = [moves.pop()];
+    const chosen_move = obj.move_choices.find(
+      (m) => m.move === answer_parts[0]
+    );
+
+    this.chess.load(fen);
+    var is_white = this.chess.turn() === "w";
+
+    return chosen_move === undefined
+      ? "unknown"
+      : log.move_to_text(
+          is_white ? "white" : "black",
+          chosen_move,
+          obj.move_choices
+        );
   }
 
   to_parts(
@@ -178,26 +200,13 @@ class Memorize {
   ): { prompt: string; answer: string; img_url: string } {
     const moves = obj.moves.slice();
     const answer_parts = [moves.pop()];
-    const chosen_move = obj.move_choices.find(
-      (m) => m.move === answer_parts[0]
-    );
 
     const parts = [];
     this.chess.load(fen);
     var is_white = this.chess.turn() === "w";
     if (!is_white) parts.unshift(["..."]);
 
-    answer_parts.push(
-      `(${
-        chosen_move === undefined
-          ? "unknown"
-          : log.move_to_text(
-              is_white ? "white" : "black",
-              chosen_move,
-              obj.move_choices
-            )
-      })`
-    );
+    answer_parts.push(`(${this.answer_parens(fen, obj)})`);
 
     var iterate_fen = fen;
     var last_opening = { i: null, opening: "" };
