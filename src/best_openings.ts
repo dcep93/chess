@@ -1,5 +1,3 @@
-const my_elo: [number, number] = [1600, 1800];
-
 const cutoff = 0.2;
 const max_depth = 5;
 
@@ -153,7 +151,7 @@ class BestOpenings {
       const [fen, { percentage, moves }] = popular_fens[i];
 
       await lichess
-        .get_moves(fen, my_elo)
+        .get_moves(fen)
         .then((moves) => ({
           wins: moves
             .map((move) => (is_white ? move.white : move.black))

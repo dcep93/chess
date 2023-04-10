@@ -1,16 +1,8 @@
-const ratings = {
-  "1600": 1600,
-  "1800": 1800,
-  "2000": 2000,
-  "2200": 2200,
-  "2500": 2500,
-};
-
 class Lichess {
   chess = new Chess();
   async get_moves(
     fen: string = null,
-    ratings: [number, number] = [1800, 2200],
+    ratings: number[] = [2000, 2200, 2500],
     attempt: number = 1,
     is_original: boolean = true
   ): Promise<Move[]> {
